@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/home_textview"
+        android:layout_width="147dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="128dp"
+        android:layout_marginTop="162dp"
+        android:layout_marginEnd="128dp"
+        android:layout_marginBottom="539dp"
+        android:scaleX="1"
+        android:scaleY="1"
+        android:text="IReminder Application"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.193" />
+
+    <Button
+        android:id="@+id/diffuser_button"
+        android:layout_width="133dp"
+        android:layout_height="60dp"
+        android:layout_above="@+id/image_album_button"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="53dp"
+        android:layout_marginEnd="35dp"
+        android:layout_marginBottom="50dp"
+        android:layout_toStartOf="@+id/reminder_button"
+        android:text="Diffuser"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.201"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.39"
+        android:onClick="diffuserButtonClicked" />
+
+    <Button
+        android:id="@+id/reminder_button"
+        android:layout_width="133dp"
+        android:layout_height="60dp"
+        android:layout_above="@+id/game_button"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="53dp"
+        android:layout_marginBottom="50dp"
+        android:text="Reminders"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.772"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.39"
+        android:onClick="reminderButtonClicked" />
+
+    <Button
+        android:id="@+id/game_button"
+        android:layout_width="133dp"
+        android:layout_height="60dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="53dp"
+        android:layout_marginBottom="275dp"
+        android:text="Games"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.773"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.577"
+        android:onClick="gameButtonClicked" />
+
+    <Button
+        android:id="@+id/image_album_button"
+        android:layout_width="133dp"
+        android:layout_height="60dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="53dp"
+        android:layout_marginEnd="35dp"
+        android:layout_marginBottom="275dp"
+        android:layout_toStartOf="@+id/game_button"
+        android:text="Image Album"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.205"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.578"
+        android:onClick="imageAlbumButtonClicked" />
+
+</RelativeLayout>
