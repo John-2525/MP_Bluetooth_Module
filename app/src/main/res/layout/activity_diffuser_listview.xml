@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Diffuser_Listview">
+
+  <TextView
+      android:id="@+id/Diffuser_Activity_Textview"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentStart="true"
+      android:layout_alignParentTop="true"
+      android:layout_alignParentEnd="true"
+      android:layout_marginStart="82dp"
+      android:layout_marginTop="77dp"
+      android:layout_marginEnd="81dp"
+      android:text="Diffuser Bluetooth ListView"
+      android:textSize="20dp" />
+
+  <ListView
+      android:id ="@+id/Diffuser_Bluetooth_ListView"
+      android:layout_width="match_parent"
+      android:layout_height="494dp"
+      android:layout_below="@+id/Diffuser_Activity_Textview"
+      android:layout_alignParentEnd="true"
+      android:layout_alignParentBottom="true"
+      android:layout_marginTop="27dp"
+      android:layout_marginEnd="0dp"
+      android:layout_marginBottom="106dp" />
+
+  <Button
+      android:id="@+id/Back_button"
+      android:layout_width="120dp"
+      android:layout_height="wrap_content"
+      android:layout_alignParentStart="true"
+      android:layout_alignParentBottom="true"
+      android:layout_marginStart="54dp"
+      android:layout_marginBottom="28dp"
+      android:text="Back" />
+
+  <Button
+      android:id="@+id/Refresh_button"
+      android:layout_width="116dp"
+      android:layout_height="wrap_content"
+      android:layout_alignParentEnd="true"
+      android:layout_alignParentBottom="true"
+      android:layout_marginStart="70dp"
+      android:layout_marginEnd="54dp"
+      android:layout_marginBottom="28dp"
+      android:text="Refresh" />
+</RelativeLayout>

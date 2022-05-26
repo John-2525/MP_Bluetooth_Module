@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,39 +12,38 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Initializing variables and their name
+    private Button DiffuserBtn, ReminderBtn, ImageAlbumBtn, GamesBtn;
+    private TextView Home_text;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        TextView Home_text = findViewById(R.id.home_textview);
-        Button DiffuserBtn = findViewById(R.id.diffuser_button);
-        Button ReminderBtn = findViewById(R.id.reminder_button);
-        Button ImageAlbumBtn = findViewById(R.id.image_album_button);
-        Button GamesBtn = findViewById(R.id.game_button);
+        // Finds the view by the ID given
+        Home_text = findViewById(R.id.home_textview);
+        DiffuserBtn = findViewById(R.id.diffuser_button);
+        ReminderBtn = findViewById(R.id.reminder_button);
+        ImageAlbumBtn = findViewById(R.id.image_album_button);
+        GamesBtn = findViewById(R.id.game_button);
 
+        // Detects if the "Diffuser Bluetooth" button is clicked
+        DiffuserBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                OpenDiffuserBLuetoothListView();
+            }
+        });
 
-        BluetoothAdapter Diffuser_Bluetooth = BluetoothAdapter.getDefaultAdapter();
-        // To get MAC address : System.out.println(Diffuser_Bluetooth.getBondedDevices());
 
     }
 
-    public void diffuserButtonClicked(View view) {
-        //TODO Choose HC-05 from here
-    }
+    //TODO Do the below for the remaining buttons
 
-    public void reminderButtonClicked(View view) {
-        //TODO Insert Reminder Module
-        //TODO Toggle Diffuser 1
-    }
-
-    public void imageAlbumButtonClicked(View view) {
-        //TODO Insert Image Album Module
-        //TODO Toggle Diffuser 2 and 3
-    }
-
-    public void gameButtonClicked(View view) {
-        //TODO Insert Game Module
-        //TODO Toggle Diffuser 4
+    // This is to toggle to the Diffuser Bluetooth Activity
+    public void OpenDiffuserBLuetoothListView() {
+        Intent intentDiffuser = new Intent(this, Diffuser_Listview.class);
+        startActivity(intentDiffuser);
     }
 }

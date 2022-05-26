@@ -37,14 +37,14 @@
         android:layout_marginEnd="35dp"
         android:layout_marginBottom="50dp"
         android:layout_toStartOf="@+id/reminder_button"
-        android:text="Diffuser"
+        android:onClick="diffuserButtonClicked"
+        android:text="Diffuser Bluetooth"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.201"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.39"
-        android:onClick="diffuserButtonClicked" />
+        app:layout_constraintVertical_bias="0.39" />
 
     <Button
         android:id="@+id/reminder_button"
