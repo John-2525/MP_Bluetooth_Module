@@ -19,7 +19,6 @@ public class Diffuser_Listview extends AppCompatActivity {
     private TextView BluetoothTextView;
     private ListView BluetoothListView;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
