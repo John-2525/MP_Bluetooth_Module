@@ -1,5 +1,6 @@
 package com.example.mp_bluetooth_module;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,12 +10,19 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.Set;
+
 public class Diffuser_Listview extends AppCompatActivity {
 
     // Initializing variables
     private Button BackBtn, RefreshBtn;
     private TextView BluetoothTextView;
     private ListView BluetoothListView;
+
+    // Initializing the Adapter for bluetooth
+    private BluetoothAdapter Bluetooth_Adap = null;
+    private Set Devices;
+    // comes in Oncreate method of the activity
 
 
     @Override
