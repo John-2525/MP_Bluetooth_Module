@@ -19,11 +19,6 @@ public class Diffuser_Listview extends AppCompatActivity {
     private TextView BluetoothTextView;
     private ListView BluetoothListView;
 
-    // Initializing the Adapter for bluetooth
-    private BluetoothAdapter Bluetooth_Adap = null;
-    private Set Devices;
-    // comes in Oncreate method of the activity
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
