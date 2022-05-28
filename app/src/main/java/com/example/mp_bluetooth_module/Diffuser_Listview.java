@@ -9,9 +9,12 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import Classes.BlueToothListViewAdapter;
 import Classes.PairedBluetoothDevice;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,10 +28,10 @@ public class Diffuser_Listview extends AppCompatActivity {
     // Initializing variables
     private Button BackBtn, RefreshBtn;
     private TextView BluetoothTextView;
-    private ListView BluetoothListView;
-    private BluetoothAdapter PhoneBluetoothAdapter;
-    private BluetoothManager PhoneBluetoothManager;
-    private List<PairedBluetoothDevice> PairedDeviceList;
+    private ListView DeviceListView;
+    BluetoothAdapter PhoneBluetoothAdapter;
+    BluetoothManager PhoneBluetoothManager;
+    ArrayList<PairedBluetoothDevice> PairedDeviceList;
     Set<BluetoothDevice> pairedDevices;
 
     @Override
@@ -36,20 +39,21 @@ public class Diffuser_Listview extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diffuser_listview);
 
-
         PhoneBluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         PhoneBluetoothAdapter = PhoneBluetoothManager.getAdapter();
+        PhoneBluetoothAdapter.enable();
 
         BackBtn = findViewById(R.id.Back_button);
         RefreshBtn = findViewById(R.id.Refresh_button);
         BluetoothTextView = findViewById(R.id.Diffuser_Activity_Textview);
-        BluetoothListView = findViewById(R.id.Diffuser_Bluetooth_ListView);
+        DeviceListView = findViewById(R.id.BluetoothListView);
+
 
         // Initializing list of paired bluetooth devices
         pairedDevices = PhoneBluetoothAdapter.getBondedDevices();
 
         // Initializing new array list
-        PairedDeviceList = new ArrayList();
+        PairedDeviceList = new ArrayList<>();
 
         // Function to initialize and load the list view when coming to this page
         BluetoothListView();
@@ -77,15 +81,18 @@ public class Diffuser_Listview extends AppCompatActivity {
         startActivity(intentHomePage);
     }
 
+    // Function to populate ListView
     public void BluetoothListView() {
         PairedDeviceList.clear();
-        PhoneBluetoothAdapter.enable();
         for(BluetoothDevice bt: pairedDevices) {
             PairedBluetoothDevice newDevice = new PairedBluetoothDevice();
-            newDevice.addDevice(bt.getName(),bt.getAddress());
+            newDevice.addDevice(bt.getName(), bt.getAddress());
             PairedDeviceList.add(newDevice);
-        }
-        Adapter ListViewAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,PairedDeviceList);
+       }
+
+        // Custom Listview adapter for PairedBluetoothDevice class
+        BlueToothListViewAdapter Adapter = new BlueToothListViewAdapter(this, R.layout.activity_bluetooth_device_text_view, PairedDeviceList);
+        DeviceListView.setAdapter(Adapter);
     }
 
     public void RefreshBluetoothListView() {
@@ -94,5 +101,5 @@ public class Diffuser_Listview extends AppCompatActivity {
     }
 
 }
-
-//TODO Test it out on android phone once done before moving to connection
+// TODO Find way to connect to bluetooth when touching one of the address from listview
+// TODO Find a way to display name and address
