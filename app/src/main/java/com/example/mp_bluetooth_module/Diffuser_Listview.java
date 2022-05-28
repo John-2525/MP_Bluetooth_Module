@@ -102,4 +102,3 @@ public class Diffuser_Listview extends AppCompatActivity {
 
 }
 // TODO Find way to connect to bluetooth when touching one of the address from listview
-// TODO Find a way to display name and address
