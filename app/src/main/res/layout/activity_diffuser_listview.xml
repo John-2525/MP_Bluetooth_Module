@@ -15,7 +15,7 @@
       android:layout_marginTop="77dp"
       android:layout_marginEnd="81dp"
       android:text="Diffuser Bluetooth ListView"
-      android:textSize="20dp"
+      android:textSize="20sp"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent" />
@@ -24,22 +24,12 @@
       android:id="@+id/Back_button"
       android:layout_width="120dp"
       android:layout_height="wrap_content"
-      android:layout_marginStart="54dp"
-      android:layout_marginBottom="28dp"
+      android:layout_marginBottom="24dp"
       android:text="Back"
       app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.209"
       app:layout_constraintStart_toStartOf="parent" />
-
-  <Button
-      android:id="@+id/Refresh_button"
-      android:layout_width="116dp"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="70dp"
-      android:layout_marginEnd="54dp"
-      android:layout_marginBottom="28dp"
-      android:text="Refresh"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent" />
 
   <ListView
       android:id="@+id/BluetoothListView"
@@ -51,6 +41,17 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/Diffuser_Activity_Textview"
       app:layout_constraintVertical_bias="0.271" />
+
+  <Button
+      android:id="@+id/Refresh_button"
+      android:layout_width="120dp"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="24dp"
+      android:text="Refresh"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.49"
+      app:layout_constraintStart_toEndOf="@+id/Back_button" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
