@@ -1,8 +1,10 @@
-package com.example.mp_bluetooth_module;
+package Background_Items;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.mp_bluetooth_module.R;
 
 public class BluetoothDeviceTextView extends AppCompatActivity {
 
