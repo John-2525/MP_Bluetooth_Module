@@ -1,23 +1,59 @@
 package Background_Items;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.IntentFilter;
-import android.os.Bundle;
+import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
-import androidx.appcompat.app.AppCompatActivity;
+import java.io.IOException;
+import java.util.UUID;
 
-public class BluetoothConnection extends AppCompatActivity {
-    BluetoothAdapter DeviceBluetooth;
+public class BluetoothConnection extends Thread {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    private static final String TAG = "Debug";
+    private BluetoothDevice Device;
+    private BluetoothSocket DeviceSocket;
 
-        DeviceBluetooth = BluetoothAdapter.getDefaultAdapter();
 
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        registerReceiver(BroadcastReceiver, filter);
+    public BluetoothConnection(BluetoothDevice BluetoothDevice, UUID DeviceUUID, BluetoothSocket Socket) {
+        Device = BluetoothDevice;
+        DeviceSocket = Socket;
+
+        if(Socket != null) {
+            try {
+                DeviceSocket.close();
+                Log.d(TAG,"Closed existing bluetooth device connection");
+            }
+
+            catch (IOException e) {
+                e.printStackTrace();
+                Log.d(TAG,"Failed to clos existing bluetooth device connection");
+            }
+        }
+
+        try {
+            DeviceSocket = Device.createInsecureRfcommSocketToServiceRecord(DeviceUUID);
+            Log.d(TAG,"Bluetooth socket connection established");
+
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            Log.d(TAG,"Bluetooth socket connection failed to establish");
+        }
+
     }
+
+    public void run() {
+        try {
+            DeviceSocket.connect();
+            Log.d(TAG, "Bluetooth is connected to device");
+
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            Log.d(TAG, "Bluetooth failed to connect to device");
+
+        }
+
+    }
+
 }

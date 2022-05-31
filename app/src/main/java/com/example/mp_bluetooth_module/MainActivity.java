@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
         // Detects if the "Diffuser Bluetooth" button is clicked
         DiffuserBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-
             public void onClick(View v) {
                 OpenDiffuserBLuetoothListView();
             }
