@@ -186,33 +186,20 @@ public class Diffuser_Listview extends AppCompatActivity implements PopupMenu.On
     // Below is the implementation of OnMenuItemClickListener from PopupMenu.OnMenuItemClickListener at public class
     @Override
     // Toggles bluetooth connection based on which menu item clicked
-    //TODO Problem lies in disconnect
+    //TODO Problem lies in socket becoming null
     public boolean onMenuItemClick(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.Connect:
                 // Connects to selected bluetooth device
-                Connection = new BluetoothConnection(Device,SpecificDeviceUUID, DeviceBluetoothSocket);
+                Connection = new BluetoothConnection(Device,SpecificDeviceUUID);
                 Connection.start();
-
-                /*
-                if(BluetoothConnectToggle == false) {
-                    Connection = new BluetoothConnection();
-                    Connection.start();
-                }
-
-                else {
-                    Disconnect = new BluetoothDisconnect();
-                    Disconnect.start();
-                }
-                */
 
                 Toast.makeText(Diffuser_Listview.this,"Connected",Toast.LENGTH_SHORT).show();
                 return true;
 
             case R.id.Disconnect:
                 //TODO Disconnect from bluetooth here
-                Disconnect = new BluetoothDisconnect(DeviceBluetoothSocket);
-                Disconnect.start();
+                Connection.Cancel();
                 Toast.makeText(Diffuser_Listview.this,"Disconnected",Toast.LENGTH_SHORT).show();
                 return true;
 
