@@ -26,13 +26,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import Background_Items.BluetoothConnection;
-import Background_Items.BluetoothDisconnect;
 import Classes.BlueToothListViewAdapter;
 import Classes.PairedBluetoothDevice;
 
 public class Diffuser_Listview extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
-    private static final String TAG = "Debug";
+    private static final String TAG = "CheckPoint";
     // Initializing variables name
     private Button BackBtn, RefreshBtn;
     private ListView DeviceListView;
@@ -47,9 +46,7 @@ public class Diffuser_Listview extends AppCompatActivity implements PopupMenu.On
     String ConnectName, ConnectAddress;
     ParcelUuid[] Device_ParcelUUID_List;
     UUID SpecificDeviceUUID;
-    boolean BluetoothConnectToggle = false;
     BluetoothConnection Connection;
-    BluetoothDisconnect Disconnect;
 
 
     // A launcher for a previously-prepared call to start the process of executing an ActivityResultContract ~ Android Studio Documentation
@@ -174,7 +171,7 @@ public class Diffuser_Listview extends AppCompatActivity implements PopupMenu.On
 
     // showConnectPopUpMenu and onMenuItemClick is based on https://www.youtube.com/watch?v=s1fW7CpiB9c
 
-    // Displays pop up menu
+    // Displays pop up menu when listview item is clicked
     public void showConnectPopUpMenu(View view) {
         PopupMenu popup = new PopupMenu(this, view);
         popup.setOnMenuItemClickListener(this);
@@ -186,20 +183,23 @@ public class Diffuser_Listview extends AppCompatActivity implements PopupMenu.On
     // Below is the implementation of OnMenuItemClickListener from PopupMenu.OnMenuItemClickListener at public class
     @Override
     // Toggles bluetooth connection based on which menu item clicked
-    //TODO Problem lies in socket becoming null
     public boolean onMenuItemClick(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.Connect:
-                // Connects to selected bluetooth device
+                // Creates new instance of BluetoothConnection class to get a new socket connection
                 Connection = new BluetoothConnection(Device,SpecificDeviceUUID);
-                Connection.start();
+                // BluetoothConnection run() method connects to the bluetooth device
+                Connection.Connect();
+                Connection.SendString("2");
 
                 Toast.makeText(Diffuser_Listview.this,"Connected",Toast.LENGTH_SHORT).show();
                 return true;
 
             case R.id.Disconnect:
-                //TODO Disconnect from bluetooth here
-                Connection.Cancel();
+                // Calls function from BluetoothConnection to disconnect from bluetooth device
+                Connection.SendString("2");
+                Connection.Disconnect();
+
                 Toast.makeText(Diffuser_Listview.this,"Disconnected",Toast.LENGTH_SHORT).show();
                 return true;
 
