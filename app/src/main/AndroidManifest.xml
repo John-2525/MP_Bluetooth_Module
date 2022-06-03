@@ -16,6 +16,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MP_Bluetooth_Module">
+        <service android:name="Background_Items.BluetoothBackground"
+            android:exported="false"/>
         <activity
             android:name="Background_Items.BluetoothDeviceTextView"
             android:exported="false" />

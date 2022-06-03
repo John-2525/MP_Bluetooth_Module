@@ -19,11 +19,11 @@ import java.util.UUID;
 public class BluetoothConnection extends Thread {
 
     private static final String TAG = "CheckPoint";
-    private final BluetoothDevice Device;
-    private final BluetoothSocket DeviceSocket;
-    private final OutputStream DataOutput;
-    private String command;
-    private byte[] toSend;
+    final BluetoothDevice Device;
+    final BluetoothSocket DeviceSocket;
+    final OutputStream DataOutput;
+    String command;
+    byte[] toSend;
 
 
     public BluetoothConnection(BluetoothDevice BluetoothDevice, UUID DeviceUUID) {
@@ -82,12 +82,16 @@ public class BluetoothConnection extends Thread {
         Log.d(TAG,"Bytes are "+toSend);
 
         try {
-            if(DataOutput != null) {
+            if(DataOutput== null) {
+                Log.d(TAG, "hello");
+            }
+            if(DataOutput != null && toSend != null) {
+                Log.d(TAG, "OutputStream is " + DataOutput);
                 DataOutput.write(toSend);
                 Log.d(TAG, "Message sent is " + command);
             }
         }
-        catch (IOException e) {
+        catch (Exception e) {
             Log.e(TAG, "Error occurred when sending data", e);
         }
     }

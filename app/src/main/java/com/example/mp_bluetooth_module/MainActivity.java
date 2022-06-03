@@ -10,11 +10,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import Background_Items.BluetoothConnection;
+
 public class MainActivity extends AppCompatActivity {
 
     // Initializing variables and their name
     private Button DiffuserBtn, ReminderBtn, ImageAlbumBtn, GamesBtn;
     private TextView Home_text;
+    BluetoothConnection Connection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 OpenDiffuserBLuetoothListView();
+            }
+        });
+
+        ImageAlbumBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Connection.SendString("2");
             }
         });
 

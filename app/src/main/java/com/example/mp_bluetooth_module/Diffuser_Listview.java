@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
+import Background_Items.BluetoothBackground;
 import Background_Items.BluetoothConnection;
 import Classes.BlueToothListViewAdapter;
 import Classes.PairedBluetoothDevice;
@@ -111,6 +112,8 @@ public class Diffuser_Listview extends AppCompatActivity implements PopupMenu.On
         RefreshBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                if()
+                Connection.SendString("2");
                 BluetoothListView();
             }
         });
@@ -190,14 +193,12 @@ public class Diffuser_Listview extends AppCompatActivity implements PopupMenu.On
                 Connection = new BluetoothConnection(Device,SpecificDeviceUUID);
                 // BluetoothConnection run() method connects to the bluetooth device
                 Connection.Connect();
-                Connection.SendString("2");
 
                 Toast.makeText(Diffuser_Listview.this,"Connected",Toast.LENGTH_SHORT).show();
                 return true;
 
             case R.id.Disconnect:
                 // Calls function from BluetoothConnection to disconnect from bluetooth device
-                Connection.SendString("2");
                 Connection.Disconnect();
 
                 Toast.makeText(Diffuser_Listview.this,"Disconnected",Toast.LENGTH_SHORT).show();
@@ -207,4 +208,5 @@ public class Diffuser_Listview extends AppCompatActivity implements PopupMenu.On
                 return false;
         }
     }
+
 }
