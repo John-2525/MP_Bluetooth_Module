@@ -1,5 +1,7 @@
 package Classes;
 
+/** Custom class to be used for the listview in Diffuser_Listview.java */
+
 public class PairedBluetoothDevice {
 
     private String BluetoothDeviceName;

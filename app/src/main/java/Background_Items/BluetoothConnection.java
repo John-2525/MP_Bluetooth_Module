@@ -19,12 +19,14 @@ import java.util.UUID;
 public class BluetoothConnection extends Thread {
 
     private static final String TAG = "CheckPoint";
-    final BluetoothDevice Device;
-    final BluetoothSocket DeviceSocket;
-    final OutputStream DataOutput;
+    private final BluetoothDevice Device;
+    private final BluetoothSocket DeviceSocket;
+    private final OutputStream DataOutput;
     String command;
     byte[] toSend;
 
+
+    /** Template of code to connect to bluetooth, disconnect from it and send signals to it */
 
     public BluetoothConnection(BluetoothDevice BluetoothDevice, UUID DeviceUUID) {
         Device = BluetoothDevice;
@@ -36,7 +38,7 @@ public class BluetoothConnection extends Thread {
             Socket = Device.createInsecureRfcommSocketToServiceRecord(DeviceUUID);
             Log.d(TAG, "Bluetooth socket connection established");
             Data = Socket.getOutputStream();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             Log.d(TAG, "Bluetooth socket connection failed to establish");
         }
@@ -52,7 +54,7 @@ public class BluetoothConnection extends Thread {
             DeviceSocket.connect();
             Log.d(TAG, "Bluetooth is connected to device");
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             Log.d(TAG, "Bluetooth failed to connect to device");
 
@@ -69,7 +71,7 @@ public class BluetoothConnection extends Thread {
             try {
                 DeviceSocket.close();
                 Log.d(TAG, "Bluetooth disconnected successfully");
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 Log.d(TAG, "Bluetooth failed to disconnect successfully");
             }
@@ -82,9 +84,6 @@ public class BluetoothConnection extends Thread {
         Log.d(TAG,"Bytes are "+toSend);
 
         try {
-            if(DataOutput== null) {
-                Log.d(TAG, "hello");
-            }
             if(DataOutput != null && toSend != null) {
                 Log.d(TAG, "OutputStream is " + DataOutput);
                 DataOutput.write(toSend);

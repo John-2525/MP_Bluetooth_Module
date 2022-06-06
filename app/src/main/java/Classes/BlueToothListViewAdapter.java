@@ -30,11 +30,13 @@ public class BlueToothListViewAdapter extends ArrayAdapter<PairedBluetoothDevice
 
     @NonNull
     @Override
-    // Responsible for getting the view and attaching it to listview
+    /** Responsible for getting the view and attaching it to listview */
     public View getView(int position, View convertView, ViewGroup parent) {
+        /** Gets the data to be inserted into the listview */
         String Name = getItem(position).getDeviceName();
         String Address = getItem(position).getDeviceAddress();
 
+        /** Creates an instance of the custom class the adapter is based on */
         PairedBluetoothDevice bluetoothDevice = new PairedBluetoothDevice();
         bluetoothDevice.setDeviceAddress(Address);
         bluetoothDevice.setDeviceName(Name);
@@ -42,9 +44,11 @@ public class BlueToothListViewAdapter extends ArrayAdapter<PairedBluetoothDevice
         LayoutInflater inflater = LayoutInflater.from(Bcontext);
         convertView = inflater.inflate(BResource, parent, false);
 
+        /** Finds the view from the custom text view activity to be used in the listview */
         TextView DeviceName = convertView.findViewById(R.id.BTDeviceName);
         TextView DeviceAddress = convertView.findViewById(R.id.BTDeviceAddress);
 
+        /** Sets the data in the custom text view */
         DeviceName.setText(Name);
         DeviceAddress.setText(Address);
 
