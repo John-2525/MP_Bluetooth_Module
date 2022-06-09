@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         DiffuserBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OpenDiffuserBLuetoothListView();
+                OpenDiffuserBluetoothListView();
             }
         });
 
@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
                else {
                     Toast.makeText(MainActivity.this,"Please connect to a bluetooth device first under Diffuser Bluetooth",Toast.LENGTH_SHORT).show();
                 }
+                OpenImageVideoAlbum();
             }
         });
 
@@ -93,10 +94,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /** This is to toggle to the Diffuser Bluetooth Activity */
-    public void OpenDiffuserBLuetoothListView() {
+    public void OpenDiffuserBluetoothListView() {
         Intent intentDiffuser = new Intent(this, Diffuser_Listview.class);
         startActivity(intentDiffuser);
     }
+
+    /** This is to toggle to the Image Video Album Activity */
+    public void OpenImageVideoAlbum() {
+        Intent intentAlbum = new Intent(this, Image_Video_Album.class);
+        startActivity(intentAlbum);
+    }
+
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection connection = new ServiceConnection() {

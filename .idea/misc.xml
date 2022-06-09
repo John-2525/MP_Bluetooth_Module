@@ -5,7 +5,14 @@
       <map>
         <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/activity_bluetooth_device_text_view.xml" value="0.264" />
         <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/activity_diffuser_listview.xml" value="0.25416666666666665" />
+        <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/activity_image_video_album.xml" value="0.264" />
         <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/activity_upload_file_firebase.xml" value="0.16" />
+        <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/album_image_view.xml" value="0.2" />
+        <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/album_video_view.xml" value="0.2" />
+        <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/fragment_image__video__album.xml" value="0.16" />
+        <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/image_fragment.xml" value="0.2" />
+        <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/video_fragment.xml" value="0.2" />
         <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/menu/bluetooth_connect_popup_menu.xml" value="0.264" />
       </map>
     </option>

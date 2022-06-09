@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -31,6 +32,7 @@ public class BluetoothBackground extends Service {
     private OutputStream DataOutput;
     private String command;
     private byte[] toSend;
+    private CountDownTimer timer;
 
     /** Binder (instance of ?) given to client side */
 
@@ -152,6 +154,4 @@ public class BluetoothBackground extends Service {
             return false;
         }
     }
-
-
 }

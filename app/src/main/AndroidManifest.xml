@@ -3,6 +3,7 @@
     package="com.example.mp_bluetooth_module">
     <!-- Permission for the application to use bluetooth -->
     <uses-feature android:name="android.hardware.bluetooth" />
+
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
@@ -16,8 +17,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MP_Bluetooth_Module">
-        <service android:name="Background_Items.BluetoothBackground"
-            android:exported="false"/>
+        <activity
+            android:name=".Upload_File_Firebase"
+            android:exported="false" />
+        <activity
+            android:name=".Image_Video_Album"
+            android:exported="false"
+            android:label="@string/title_activity_image_video_album"
+            android:theme="@style/Theme.MP_Bluetooth_Module.NoActionBar" />
+
+        <service
+            android:name="Background_Items.BluetoothBackground"
+            android:exported="false" />
+
         <activity
             android:name="Background_Items.BluetoothDeviceTextView"
             android:exported="false" />
@@ -34,6 +46,5 @@
             </intent-filter>
         </activity>
     </application>
-
 
 </manifest>

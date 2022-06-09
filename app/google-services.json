@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "809023849895",
+    "project_id": "image-video-album",
+    "storage_bucket": "image-video-album.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:809023849895:android:4f848be731c3753f3aa282",
+        "android_client_info": {
+          "package_name": "com.example.mp_bluetooth_module"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "809023849895-gq3vq0qv5vu4r85um015lc5tq9j5ahn1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVi0HDj1I2pTuLrYuEQIJzcyG3bJEoHvI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "809023849895-gq3vq0qv5vu4r85um015lc5tq9j5ahn1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
