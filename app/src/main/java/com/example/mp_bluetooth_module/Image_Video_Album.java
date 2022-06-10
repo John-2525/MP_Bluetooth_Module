@@ -29,7 +29,7 @@ public class Image_Video_Album extends AppCompatActivity {
     BluetoothBackground Service;
     boolean Bound = false;
     private static final String TAG = "CheckPoint";
-    private CountDownTimer InterrputTimer;
+    private CountDownTimer InterruptTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +112,7 @@ public class Image_Video_Album extends AppCompatActivity {
          * " InterrputTimer = new CountDownTimer(...) " is to create a new instance of a timer
          * whenever this activity becomes visible to the user
          */
-       InterrputTimer = new CountDownTimer(30000,1000) {
+       InterruptTimer = new CountDownTimer(30000,1000) {
 
            /** A function that activates every count down interval (set by the user) */
             public void onTick(long millisUntilFinished) {
@@ -127,7 +127,7 @@ public class Image_Video_Album extends AppCompatActivity {
             }
         }.start();  /** Starts the count down timer */
 
-        if(InterrputTimer != null) {
+        if(InterruptTimer != null) {
             Log.d(TAG,"Timer is started");
         }
     }
@@ -143,10 +143,10 @@ public class Image_Video_Album extends AppCompatActivity {
 
 
         /** Stops the count down timer early if this activity is no longer visible to the user */
-        InterrputTimer.cancel();
+        InterruptTimer.cancel();
         /** Sets the timer variable to null */
-        InterrputTimer = null;
-        if(InterrputTimer == null) {
+        InterruptTimer = null;
+        if(InterruptTimer == null) {
             Log.d(TAG,"Timer is stopped");
         }
         else {
