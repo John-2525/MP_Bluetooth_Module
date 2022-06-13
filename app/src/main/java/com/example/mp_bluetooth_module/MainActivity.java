@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /** Finds the view by the ID given */
+        /** Finds the view by the ID given and sets it to the variable */
 
         Home_text = findViewById(R.id.home_textview);
         DiffuserBtn = findViewById(R.id.diffuser_button);

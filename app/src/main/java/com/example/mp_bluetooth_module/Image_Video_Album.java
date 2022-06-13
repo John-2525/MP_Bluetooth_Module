@@ -35,8 +35,8 @@ public class Image_Video_Album extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-     binding = ActivityImageVideoAlbumBinding.inflate(getLayoutInflater());
-     setContentView(binding.getRoot());
+        binding = ActivityImageVideoAlbumBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = binding.viewPager;
@@ -49,17 +49,14 @@ public class Image_Video_Album extends AppCompatActivity {
         UploadFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent uploadIntent = new Intent(Image_Video_Album.this,Upload_File_Firebase.class);
-                startActivity(uploadIntent);
+                SwitchToUploadActivity();
             }
         });
 
         BackFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Service.SendString("1");
-                Intent mainIntent = new Intent(Image_Video_Album.this, MainActivity.class);
-                startActivity(mainIntent);
+                ReturnToMainMenu();
             }
         });
     }
@@ -136,11 +133,6 @@ public class Image_Video_Album extends AppCompatActivity {
     @Override
     protected void onStop() {  /** onStop is when activity is not visible to user  */
         super.onStop();
-        /** Unbinds the service from the caller and destroys it*/
-        unbindService(connection);
-        Bound = false;
-        Log.d(TAG,"Bound service is unbounded or destroyed");
-
 
         /** Stops the count down timer early if this activity is no longer visible to the user */
         InterruptTimer.cancel();
@@ -152,6 +144,21 @@ public class Image_Video_Album extends AppCompatActivity {
         else {
             Log.d(TAG,"Error : Timer is still running");
         }
+
+        /** Unbinds the service from the caller and destroys it*/
+        unbindService(connection);
+        Bound = false;
+        Log.d(TAG,"Bound service is unbounded or destroyed");
     }
 
+    public void SwitchToUploadActivity() {
+        Intent uploadIntent = new Intent(Image_Video_Album.this,Upload_File_Firebase.class);
+        startActivity(uploadIntent);
+    }
+
+    public void ReturnToMainMenu() {
+        Service.SendString("1");
+        Intent mainIntent = new Intent(Image_Video_Album.this, MainActivity.class);
+        startActivity(mainIntent);
+    }
 }
