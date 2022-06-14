@@ -13,6 +13,7 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.media.Image;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -31,13 +32,18 @@ import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.net.URI;
 
 import Background_Items.BluetoothBackground;
+import Classes.Firebase_Database_Image_Video_Audio_Upload;
 
 public class Upload_File_Firebase extends AppCompatActivity {
 
@@ -56,7 +62,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
     private ImageView ImageDisplay;
     private VideoView VideoDisplay;
     private Context context;
-    private FirebaseStorage FireStorage;
+    private DatabaseReference mDataBaseReference;
     private StorageReference mstorageReference;
     private String mFileName, FolderPath, ExtAppSpecificFolder, InputAudioFileName;
     private File AudioFolder, AudioFile, AudioPath;
@@ -190,8 +196,9 @@ public class Upload_File_Firebase extends AppCompatActivity {
 
         FolderPath = "Recorded Audio";
         ExtAppSpecificFolder = "/Android/data/com.example.mp_bluetooth_module/files/Recorded Audio/";
-        FireStorage = FirebaseStorage.getInstance();
-        mstorageReference = FireStorage.getReference();
+        mstorageReference = FirebaseStorage.getInstance().getReference();
+        mDataBaseReference = FirebaseDatabase.getInstance("https://image-video-album-default-rtdb.asia-southeast1.firebasedatabase.app").getReference();
+
 
         /**
          * Functions to get permission for storage and permission respectively
@@ -351,7 +358,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
          * folder to store Audio recordings is recorded when switching to this activity
          *
          * Documentation on it ( https://developer.android.com/reference/android/content/ContextWrapper#getExternalFilesDirs(java.lang.String) )
-         * doesnt say anything related to that, forum reply from May 2021 claims that the online documentation needs to be updated regarding this
+         * doesn't say anything related to that, forum reply from May 2021 claims that the online documentation needs to be updated regarding this
          */
         AudioFolder = contextWrapper.getExternalFilesDir(Folder_Name);
         Log.d(TAG,AudioFolder.getPath());
@@ -542,6 +549,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
          *
          * For this case, since one intent is using startActivityForResult(), it doesnt not really
          * matter if you add a filter by request code
+         * But I decided to add it for good habits purpose
          */
         startActivityForResult(galleryIntent, SELECT_IMAGE_OR_VIDEO_FROM_GALLERY);
     }
@@ -560,36 +568,39 @@ public class Upload_File_Firebase extends AppCompatActivity {
          * returning an image at all
          */
         if(resultCode == RESULT_OK && data != null) {
-            /** Used to get the URI of the data this intent is targeting */
-            selectedMediaUri = data.getData();
-            Log.d(TAG,selectedMediaUri.toString());
+            /** Checks if the request code belongs to selecting photo or video intent */
+            if (requestCode == SELECT_IMAGE_OR_VIDEO_FROM_GALLERY) {
+                /** Used to get the URI of the data this intent is targeting */
+                selectedMediaUri = data.getData();
+                Log.d(TAG, selectedMediaUri.toString());
 
-            /** Checks if the data is an image */
-            if (selectedMediaUri.toString().contains("image")) {
-                /** Sets the image view visible while hiding video view */
-                ImageDisplay.setVisibility(View.VISIBLE);
-                VideoDisplay.setVisibility(View.INVISIBLE);
-                /** Loads the image onto the image view via Uri */
-                ImageDisplay.setImageURI(selectedMediaUri);
-                Log.d(TAG,"Image Displayed");
-            }
+                /** Checks if the data is an image */
+                if (selectedMediaUri.toString().contains("image")) {
+                    /** Sets the image view visible while hiding video view */
+                    ImageDisplay.setVisibility(View.VISIBLE);
+                    VideoDisplay.setVisibility(View.INVISIBLE);
+                    /** Loads the image onto the image view via Uri */
+                    ImageDisplay.setImageURI(selectedMediaUri);
+                    Log.d(TAG, "Image Displayed");
+                }
 
-            /** Checks if the data is a video */
-            else  if (selectedMediaUri.toString().contains("video")) {
-                /** Sets the video view visible while hiding image view */
-                VideoDisplay.setVisibility(View.VISIBLE);
-                ImageDisplay.setVisibility(View.INVISIBLE);
-                /** Loads the video onto the video view via Uri */
-                VideoDisplay.setVideoURI(selectedMediaUri);
-                Log.d(TAG,"Video Displayed");
+                /** Checks if the data is a video */
+                else if (selectedMediaUri.toString().contains("video")) {
+                    /** Sets the video view visible while hiding image view */
+                    VideoDisplay.setVisibility(View.VISIBLE);
+                    ImageDisplay.setVisibility(View.INVISIBLE);
+                    /** Loads the video onto the video view via Uri */
+                    VideoDisplay.setVideoURI(selectedMediaUri);
+                    Log.d(TAG, "Video Displayed");
 
-                /** Function used to control the video the video */
+                    /** Function used to control the video the video */
 
-                /** Creates new instance of MediaController */
-                mediaController = new MediaController(this);
-                VideoDisplay.setMediaController(mediaController);
-                /** Designates which view the MediaController will be attached to */
-                mediaController.setAnchorView(VideoDisplay);
+                    /** Creates new instance of MediaController */
+                    mediaController = new MediaController(this);
+                    VideoDisplay.setMediaController(mediaController);
+                    /** Designates which view the MediaController will be attached to */
+                    mediaController.setAnchorView(VideoDisplay);
+                }
             }
         }
     }
@@ -610,17 +621,51 @@ public class Upload_File_Firebase extends AppCompatActivity {
             /** Converts audio file path to a Uri */
             Uri AudioUri = Uri.fromFile(AudioFilePath);
 
-            /** Creates a reference to firebase storage folders for images, videos and audios respectively using custom file name */
-            StorageReference ImageReference = mstorageReference.child("Album/Images/" + fileName + ".png");
-            StorageReference VideoReference = mstorageReference.child("Album/Videos/" + fileName + ".mp4");
-            StorageReference AudioReference = mstorageReference.child("Album/Voice Recordings/" + fileName + ".3gp");
+            /** Creates a reference to firebase storage folders for images, videos and audios respectively using custom file path and name */
+            /**
+             * child() gets a reference for the location at the specified relative path, Ex: child("Games") == "/Games"" so
+             * by having multiple child(), it will become a file path like "/.../.../..."
+             */
+            StorageReference ImageStorageReference = mstorageReference.child("Album").child("Images").child(fileName + ".png");
+            StorageReference VideoStorageReference = mstorageReference.child("Album").child("Videos").child(fileName + ".mp4");
+            StorageReference AudioStorageReference = mstorageReference.child("Album").child("Voice Recordings").child(fileName + ".3gp");
+
 
             /** Checks if the Uri points to an image */
             if (MediaUri.toString().contains("image")) {
 
                 try {
                     /** Upload the image file to the cloud storage */
-                    ImageReference.putFile(MediaUri);
+                    /** Also uploads an object containing file name and download uri to firebase database */
+
+                    /** putFile() uploads the file through its Uri into the online storage */
+                    /** addOnSuccessListener() checks if the task has been successfully completed */
+                    ImageStorageReference.putFile(MediaUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
+                        /** What to do once response for successful uploading of file to firebase storage is returned */
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            /**
+                             * Calling StorageReference.getDownloadUrl() returns a Task,
+                             * as it needs to retrieve the download URL from the server.
+                             * So you will need a completion listener to get the actual URL
+                             */
+                            ImageStorageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri Imageuri) {
+                                    /** Creates an instance of custom object containing name and download uri to be uploaded to database */
+                                    Firebase_Database_Image_Video_Audio_Upload ImageData = new
+                                            Firebase_Database_Image_Video_Audio_Upload(fileName+".png",Imageuri.toString());
+                                    /**
+                                     * Uploads the custom object to the firebase database to a specific location in the database as denoted by child(),
+                                     * push() generates a unique key every time a new child is added to the specified Firebase reference
+                                     * this is to prevent overwriting of data in database due to data being sent to the same location database
+                                     */
+                                    mDataBaseReference.child("Album").child("Images").push().setValue(ImageData);
+                                }
+                            });
+                        }
+                    });
                     Log.e(TAG,"Image uploaded successfully");
                 }
                 catch(Exception e){
@@ -628,8 +673,37 @@ public class Upload_File_Firebase extends AppCompatActivity {
                 }
 
                 try {
-                    /** Upload the audio file to the cloud storage */
-                    AudioReference.putFile(AudioUri);
+                    /** Upload the image file to the cloud storage */
+                    /** Also uploads an object containing file name and download uri to firebase database */
+
+                    /** putFile() uploads the file through its Uri into the online storage */
+                    /** addOnSuccessListener() checks if the task has been successfully completed */
+                    AudioStorageReference.putFile(AudioUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
+                        /** What to do once response for successful uploading of file to firebase storage is returned */
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            /**
+                             * Calling StorageReference.getDownloadUrl() returns a Task,
+                             * as it needs to retrieve the download URL from the server.
+                             * So you will need a completion listener to get the actual URL
+                             */
+                            AudioStorageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri Audiouri) {
+                                    /** Creates an instance of custom object containing name and download uri to be uploaded to database */
+                                    Firebase_Database_Image_Video_Audio_Upload AudioData = new
+                                            Firebase_Database_Image_Video_Audio_Upload(fileName+".3gp",Audiouri.toString());
+                                    /**
+                                     * Uploads the custom object to the firebase database to a specific location in the database as denoted by child(),
+                                     * push() generates a unique key every time a new child is added to the specified Firebase reference
+                                     * this is to prevent overwriting of data in database due to data being sent to the same location database
+                                     */
+                                    mDataBaseReference.child("Album").child("Voice Recordings").push().setValue(AudioData);
+                                }
+                            });
+                        }
+                    });
                     Log.e(TAG,"Audio uploaded successfully");
                 }
                 catch(Exception e){
@@ -644,8 +718,37 @@ public class Upload_File_Firebase extends AppCompatActivity {
             else if (MediaUri.toString().contains("video")) {
 
                 try {
-                    /** Upload the video file to the cloud storage */
-                    VideoReference.putFile(MediaUri);
+                    /** Upload the image file to the cloud storage */
+                    /** Also uploads an object containing file name and download uri to firebase database */
+
+                    /** putFile() uploads the file through its Uri into the online storage */
+                    /** addOnSuccessListener() checks if the task has been successfully completed */
+                    VideoStorageReference.putFile(MediaUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
+                        /** What to do once response for successful uploading of file to firebase storage is returned */
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            /**
+                             * Calling StorageReference.getDownloadUrl() returns a Task,
+                             * as it needs to retrieve the download URL from the server.
+                             * So you will need a completion listener to get the actual URL
+                             */
+                            VideoStorageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri Videouri) {
+                                    /** Creates an instance of custom object containing name and download uri to be uploaded to database */
+                                    Firebase_Database_Image_Video_Audio_Upload VideoData = new
+                                            Firebase_Database_Image_Video_Audio_Upload(fileName+".mp4",Videouri.toString());
+                                    /**
+                                     * Uploads the custom object to the firebase database to a specific location in the database as denoted by child(),
+                                     * push() generates a unique key every time a new child is added to the specified Firebase reference
+                                     * this is to prevent overwriting of data in database due to data being sent to the same location database
+                                     */
+                                    mDataBaseReference.child("Album").child("Videos").push().setValue(VideoData);
+                                }
+                            });
+                        }
+                    });
                     Log.e(TAG,"Video uploaded successfully");
                 }
                 catch(Exception e){
@@ -653,8 +756,37 @@ public class Upload_File_Firebase extends AppCompatActivity {
                 }
 
                 try {
-                    /** Upload the audio file to the cloud storage */
-                    AudioReference.putFile(AudioUri);
+                    /** Upload the image file to the cloud storage */
+                    /** Also uploads an object containing file name and download uri to firebase database */
+
+                    /** putFile() uploads the file through its Uri into the online storage */
+                    /** addOnSuccessListener() checks if the task has been successfully completed */
+                    AudioStorageReference.putFile(AudioUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
+                        /** What to do once response for successful uploading of file to firebase storage is returned */
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            /**
+                             * Calling StorageReference.getDownloadUrl() returns a Task,
+                             * as it needs to retrieve the download URL from the server.
+                             * So you will need a completion listener to get the actual URL
+                             */
+                            AudioStorageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri Audiouri) {
+                                    /** Creates an instance of custom object containing name and download uri to be uploaded to database */
+                                    Firebase_Database_Image_Video_Audio_Upload AudioData = new
+                                            Firebase_Database_Image_Video_Audio_Upload(fileName+".3gp",Audiouri.toString());
+                                    /**
+                                     * Uploads the custom object to the firebase database to a specific location in the database as denoted by child(),
+                                     * push() generates a unique key every time a new child is added to the specified Firebase reference
+                                     * this is to prevent overwriting of data in database due to data being sent to the same location database
+                                     */
+                                    mDataBaseReference.child("Album").child("Voice Recordings").push().setValue(AudioData);
+                                }
+                            });
+                        }
+                    });
                     Log.e(TAG,"Audio uploaded successfully");
                 }
                 catch(Exception e){
