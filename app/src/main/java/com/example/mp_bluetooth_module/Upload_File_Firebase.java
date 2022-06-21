@@ -36,6 +36,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -49,7 +50,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 7;
     BluetoothBackground Service;
-    boolean Bound = false, EmptyText = false;
+    boolean Bound = false, EmptyText = false, AudioUploadDone = true, VideoUploadDone = true, ImageUploadDone = true;
     private static final String TAG = "CheckPoint";
     private static final int SELECT_IMAGE_OR_VIDEO_FROM_GALLERY = 3;
     private CountDownTimer InterruptTimer;
@@ -238,8 +239,14 @@ public class Upload_File_Firebase extends AppCompatActivity {
         BackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /** Function to return to Image Video Album */
-                ReturnToAlbumFragments();
+
+                if(AudioUploadDone&&ImageUploadDone&&VideoUploadDone) {
+                    /** Function to return to Image Video Album */
+                    ReturnToAlbumFragments();
+                }
+                else {
+                    Toast.makeText(Upload_File_Firebase.this,"Please wait for uploads to be done",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -256,9 +263,13 @@ public class Upload_File_Firebase extends AppCompatActivity {
         UploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                /** Uploads the selected image/video and audio file to firebase with custom file name */
-                UploadImageOrVideoWithAudio(getFileName(),selectedMediaUri,AudioFile);
+                if(AudioUploadDone&&ImageUploadDone&&VideoUploadDone) {
+                    /** Uploads the selected image/video and audio file to firebase with custom file name */
+                    UploadImageOrVideoWithAudio(getFileName(), selectedMediaUri, AudioFile);
+                }
+                else {
+                    Toast.makeText(Upload_File_Firebase.this,"Please wait for uploads to be done",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -269,6 +280,8 @@ public class Upload_File_Firebase extends AppCompatActivity {
     private String getFileName() {
         InputAudioFileName = FilesName.getText().toString();
         return InputAudioFileName;
+
+        //TODO Put in a check for invalid special characters
     }
 
 
@@ -662,11 +675,18 @@ public class Upload_File_Firebase extends AppCompatActivity {
                                      * this is to prevent overwriting of data in database due to data being sent to the same location database
                                      */
                                     mDataBaseReference.child("Album").child("Images").push().setValue(ImageData);
+                                    ImageUploadDone = true;
+                                    Toast.makeText(Upload_File_Firebase.this,"Image Uploaded Successfully",Toast.LENGTH_SHORT).show();
+                                    Log.e(TAG,"Image uploaded successfully");
                                 }
                             });
                         }
+                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                            ImageUploadDone = false;
+                        }
                     });
-                    Log.e(TAG,"Image uploaded successfully");
                 }
                 catch(Exception e){
                     Log.e(TAG,"Could not upload image");
@@ -700,18 +720,22 @@ public class Upload_File_Firebase extends AppCompatActivity {
                                      * this is to prevent overwriting of data in database due to data being sent to the same location database
                                      */
                                     mDataBaseReference.child("Album").child("Voice Recordings").push().setValue(AudioData);
+                                    AudioUploadDone = true;
+                                    Toast.makeText(Upload_File_Firebase.this,"Audio Uploaded Successfully",Toast.LENGTH_SHORT).show();
+                                    Log.e(TAG,"Audio uploaded successfully");
                                 }
                             });
                         }
+                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                            AudioUploadDone = false;
+                        }
                     });
-                    Log.e(TAG,"Audio uploaded successfully");
                 }
                 catch(Exception e){
                     Log.e(TAG,"Could not upload audio");
                 }
-
-                Toast.makeText(this,"Uploaded Image and Audio Successfully",Toast.LENGTH_SHORT).show();
-
             }
 
             /** Checks if the Uri points to a video */
@@ -745,11 +769,18 @@ public class Upload_File_Firebase extends AppCompatActivity {
                                      * this is to prevent overwriting of data in database due to data being sent to the same location database
                                      */
                                     mDataBaseReference.child("Album").child("Videos").push().setValue(VideoData);
+                                    VideoUploadDone = true;
+                                    Toast.makeText(Upload_File_Firebase.this,"Video Uploaded Successfully",Toast.LENGTH_SHORT).show();
+                                    Log.e(TAG,"Video uploaded successfully");
                                 }
                             });
                         }
+                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                            VideoUploadDone = false;
+                        }
                     });
-                    Log.e(TAG,"Video uploaded successfully");
                 }
                 catch(Exception e){
                     Log.e(TAG,"Could not upload video");
@@ -783,17 +814,22 @@ public class Upload_File_Firebase extends AppCompatActivity {
                                      * this is to prevent overwriting of data in database due to data being sent to the same location database
                                      */
                                     mDataBaseReference.child("Album").child("Voice Recordings").push().setValue(AudioData);
+                                    AudioUploadDone = true;
+                                    Toast.makeText(Upload_File_Firebase.this,"Audio Uploaded Successfully",Toast.LENGTH_SHORT).show();
+                                    Log.e(TAG,"Audio uploaded successfully");
                                 }
                             });
                         }
+                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                            AudioUploadDone = false;
+                        }
                     });
-                    Log.e(TAG,"Audio uploaded successfully");
                 }
                 catch(Exception e){
                     Log.e(TAG,"Could not upload audio");
                 }
-
-                Toast.makeText(this,"Uploaded Video and Audio Successfully",Toast.LENGTH_SHORT).show();
             }
         }
 

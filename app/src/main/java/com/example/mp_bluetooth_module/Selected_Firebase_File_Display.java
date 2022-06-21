@@ -1,74 +1,106 @@
 package com.example.mp_bluetooth_module;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.tabs.TabLayout;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager2.widget.ViewPager2;
-
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 
-import com.example.mp_bluetooth_module.databinding.ActivityImageVideoAlbumBinding;
-import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
-import Adapter.ViewPage2Adapter;
 import Background_Items.BluetoothBackground;
+import Classes.Firebase_Database_Image_Video_Audio_Upload;
 
-public class Image_Video_Album extends AppCompatActivity {
+public class Selected_Firebase_File_Display extends AppCompatActivity {
 
-    private FloatingActionButton UploadFab, BackFab;
-    private TabLayout tabLayout;
-    private ViewPager2 viewPager2;
-    BluetoothBackground Service;
-    private String[] tabTitles = {"Images","Videos"};
-    boolean Bound = false;
     private static final String TAG = "CheckPoint";
     private CountDownTimer InterruptTimer;
+    BluetoothBackground Service;
+    boolean Bound = false;
+    private FloatingActionButton BackBtn, DeleteImageBtn;
+    private Button PlayAudioBtn;
+    private ImageView SelectedImageView;
+    private Firebase_Database_Image_Video_Audio_Upload ImageData, AudioData;
+    private String SelectedImageName,SelectedImageUrl,AudioFileToQuery;
+    private Query SearchAudioFile;
+    private DatabaseReference AudioDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_image_video_album);
+        setContentView(R.layout.activity_selected_firebase_image);
 
-        UploadFab = findViewById(R.id.UploadFaBtn);
-        BackFab = findViewById(R.id.BackFaBtn);
-        viewPager2 = findViewById(R.id.view_pager2);
-        tabLayout = findViewById(R.id.tabs);
+        ImageData = (Firebase_Database_Image_Video_Audio_Upload)
+                getIntent().getSerializableExtra("ImageData");
 
-        ViewPage2Adapter adapter = new ViewPage2Adapter(this);
-        viewPager2.setAdapter(adapter);
+        SelectedImageUrl = ImageData.getFileDownloadUri();
+        SelectedImageName = ImageData.getFileName();
+        Log.d(TAG,"Image file name is "+SelectedImageName);
+        AudioFileToQuery = SelectedImageName.replace(".png",".3gp");
+        Log.d(TAG,"Audio file to query is "+AudioFileToQuery);
 
-        new TabLayoutMediator(tabLayout, viewPager2, new TabLayoutMediator.TabConfigurationStrategy() {
+        SelectedImageView = findViewById(R.id.SelectedFirebaseImageView);
+        BackBtn = findViewById(R.id.SelectedImageBackBtn);
+        DeleteImageBtn = findViewById(R.id.DeleteSelectedImageBtn);
+        PlayAudioBtn = findViewById(R.id.SelectedImagePlayAudioBtn);
+
+        Picasso.get().load(SelectedImageUrl).into(SelectedImageView);
+
+        BackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                tab.setText((tabTitles[position]));
+            public void onClick(View v) {
+                ReturnToAlbumImage();
             }
-        }).attach();
+        });
 
-        UploadFab.setOnClickListener(new View.OnClickListener() {
+        DeleteImageBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                SwitchToUploadActivity();
+            public void onClick(View v) {
+
             }
         });
 
-        BackFab.setOnClickListener(new View.OnClickListener() {
+        PlayAudioBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                ReturnToMainMenu();
+            public void onClick(View v) {
+                AudioDatabase = (DatabaseReference) FirebaseDatabase.getInstance("https://image-video-album-default-rtdb.asia-southeast1.firebasedatabase.app")
+                        .getReference().child("Album").child("Voice Recordings").orderByChild("fileName");
+                AudioDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
             }
         });
+
     }
 
+    public void ReturnToAlbumImage() {
+        Intent returnAlbumImage = new Intent(this,Image_Video_Album.class);
+        startActivity(returnAlbumImage);
+    }
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection connection = new ServiceConnection() {
@@ -117,9 +149,9 @@ public class Image_Video_Album extends AppCompatActivity {
          * " InterrputTimer = new CountDownTimer(...) " is to create a new instance of a timer
          * whenever this activity becomes visible to the user
          */
-       InterruptTimer = new CountDownTimer(30000,1000) {
+        InterruptTimer = new CountDownTimer(30000,1000) {
 
-           /** A function that activates every count down interval (set by the user) */
+            /** A function that activates every count down interval (set by the user) */
             public void onTick(long millisUntilFinished) {
                 Log.d("TIMER","seconds remaining: " + millisUntilFinished / 1000);
             };
@@ -159,14 +191,4 @@ public class Image_Video_Album extends AppCompatActivity {
         Log.d(TAG,"Bound service is unbounded or destroyed");
     }
 
-    public void SwitchToUploadActivity() {
-        Intent uploadIntent = new Intent(Image_Video_Album.this,Upload_File_Firebase.class);
-        startActivity(uploadIntent);
-    }
-
-    public void ReturnToMainMenu() {
-        Service.SendString("1");
-        Intent mainIntent = new Intent(Image_Video_Album.this, MainActivity.class);
-        startActivity(mainIntent);
-    }
 }

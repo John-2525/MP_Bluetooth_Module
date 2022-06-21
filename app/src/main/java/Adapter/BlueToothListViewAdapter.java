@@ -1,4 +1,4 @@
-package Classes;
+package Adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -14,6 +14,8 @@ import com.example.mp_bluetooth_module.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import Classes.PairedBluetoothDevice;
 
 public class BlueToothListViewAdapter extends ArrayAdapter<PairedBluetoothDevice> {
 

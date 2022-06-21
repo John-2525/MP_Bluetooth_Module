@@ -1,9 +1,15 @@
 package Classes;
 
-public class Firebase_Database_Image_Video_Audio_Upload {
+import java.io.Serializable;
+
+public class Firebase_Database_Image_Video_Audio_Upload implements Serializable {
 
     private String FileName;
     private String FileDownloadUri;
+
+    public Firebase_Database_Image_Video_Audio_Upload() {
+
+    }
 
     public Firebase_Database_Image_Video_Audio_Upload(String Name, String Uri) {
         this.FileName = Name;

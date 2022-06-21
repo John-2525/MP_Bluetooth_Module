@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">MP_Bluetooth_Module</string>
-    <string name="title_activity_image_video_album">Image_Video_Album</string>
+    <string name="title_activity_image_video_album">Image Video Album</string>
     <string name="tab_text_1">Images</string>
     <string name="tab_text_2">Videos</string>
+    <string name="ImageviewDescription">Retrieved Image That Was Uploaded From Gallery or Album</string>
 </resources>

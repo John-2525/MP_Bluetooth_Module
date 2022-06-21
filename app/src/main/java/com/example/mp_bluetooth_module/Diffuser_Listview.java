@@ -30,8 +30,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import Background_Items.BluetoothBackground;
-import Background_Items.BluetoothConnection;
-import Classes.BlueToothListViewAdapter;
+import Adapter.BlueToothListViewAdapter;
 import Classes.PairedBluetoothDevice;
 
 public class Diffuser_Listview extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
