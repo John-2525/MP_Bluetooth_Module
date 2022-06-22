@@ -116,7 +116,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
          * So this timer will send a signal ("6" in String) every 30 secs to refresh the
          * timer in the Arduino Micro-controller
          *
-         * " InterrputTimer = new CountDownTimer(...) " is to create a new instance of a timer
+         * " InterruptTimer = new CountDownTimer(...) " is to create a new instance of a timer
          * whenever this activity becomes visible to the user
          */
         InterruptTimer = new CountDownTimer(30000,1000) {
@@ -677,7 +677,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
                                     mDataBaseReference.child("Album").child("Images").push().setValue(ImageData);
                                     ImageUploadDone = true;
                                     Toast.makeText(Upload_File_Firebase.this,"Image Uploaded Successfully",Toast.LENGTH_SHORT).show();
-                                    Log.e(TAG,"Image uploaded successfully");
+                                    Log.d(TAG,"Image uploaded successfully");
                                 }
                             });
                         }
@@ -722,7 +722,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
                                     mDataBaseReference.child("Album").child("Voice Recordings").push().setValue(AudioData);
                                     AudioUploadDone = true;
                                     Toast.makeText(Upload_File_Firebase.this,"Audio Uploaded Successfully",Toast.LENGTH_SHORT).show();
-                                    Log.e(TAG,"Audio uploaded successfully");
+                                    Log.d(TAG,"Audio uploaded successfully");
                                 }
                             });
                         }
@@ -771,7 +771,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
                                     mDataBaseReference.child("Album").child("Videos").push().setValue(VideoData);
                                     VideoUploadDone = true;
                                     Toast.makeText(Upload_File_Firebase.this,"Video Uploaded Successfully",Toast.LENGTH_SHORT).show();
-                                    Log.e(TAG,"Video uploaded successfully");
+                                    Log.d(TAG,"Video uploaded successfully");
                                 }
                             });
                         }
@@ -816,7 +816,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
                                     mDataBaseReference.child("Album").child("Voice Recordings").push().setValue(AudioData);
                                     AudioUploadDone = true;
                                     Toast.makeText(Upload_File_Firebase.this,"Audio Uploaded Successfully",Toast.LENGTH_SHORT).show();
-                                    Log.e(TAG,"Audio uploaded successfully");
+                                    Log.d(TAG,"Audio uploaded successfully");
                                 }
                             });
                         }
