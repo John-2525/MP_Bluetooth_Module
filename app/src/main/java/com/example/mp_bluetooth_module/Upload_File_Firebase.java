@@ -7,6 +7,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -17,6 +19,7 @@ import android.media.Image;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
@@ -39,9 +42,11 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.iceteck.silicompressorr.SiliCompressor;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import Background_Items.BluetoothBackground;
 import Classes.Firebase_Database_Image_Video_Audio_Upload;
@@ -65,8 +70,8 @@ public class Upload_File_Firebase extends AppCompatActivity {
     private Context context;
     private DatabaseReference mDataBaseReference;
     private StorageReference mstorageReference;
-    private String mFileName, FolderPath, ExtAppSpecificFolder, InputAudioFileName;
-    private File AudioFolder, AudioFile, AudioPath;
+    private String mFileName, AudioFolderPath, CompressedVideoFolderPath, ExtAppSpecificFolder, InputAudioFileName;
+    private File AudioFolder, AudioFile, AudioPath, CompressedVideoFolder;
     private File[] AudioFileList;
     public Uri selectedMediaUri;
 
@@ -195,7 +200,8 @@ public class Upload_File_Firebase extends AppCompatActivity {
         ImageDisplay.setVisibility(View.INVISIBLE);
         VideoDisplay.setVisibility(View.INVISIBLE);
 
-        FolderPath = "Recorded Audio";
+        AudioFolderPath = "Recorded Audio";
+        CompressedVideoFolderPath = "Movies";
         ExtAppSpecificFolder = "/Android/data/com.example.mp_bluetooth_module/files/Recorded Audio/";
         mstorageReference = FirebaseStorage.getInstance().getReference();
         mDataBaseReference = FirebaseDatabase.getInstance("https://image-video-album-default-rtdb.asia-southeast1.firebasedatabase.app").getReference();
@@ -326,7 +332,8 @@ public class Upload_File_Firebase extends AppCompatActivity {
             /** Checks if the permission to write external storage is granted by user */
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 /** Creates a folder to house audio recordings */
-                createDirectory(FolderPath);
+                createDirectory(AudioFolderPath, AudioFolder);
+                createDirectory(CompressedVideoFolderPath,CompressedVideoFolder);
             }
         }
         /** If users dont give permission to write to external storage */
@@ -341,7 +348,8 @@ public class Upload_File_Firebase extends AppCompatActivity {
     private void CreateFolderAndGetExternalPermission() {
         /** Checks if permission to write to external storage is granted */
         if(ContextCompat.checkSelfPermission(Upload_File_Firebase.this,Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            createDirectory(FolderPath);
+            createDirectory(AudioFolderPath, AudioFolder);
+            createDirectory(CompressedVideoFolderPath,CompressedVideoFolder);
         }
 
         else {
@@ -352,7 +360,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
 
 
     /** Function to create a folder within the com.example.~~ folder within the phone storage, located at Android/data/~~*/
-    private void createDirectory(String Folder_Name) {
+    private void createDirectory(String Folder_Name, File PathOfFolder) {
 
         /** ContextWrapper == Proxying implementation of Context that simply delegates all of its calls to another
          *  Context. Can be subclassed to modify behavior without changing the original Context.
@@ -373,11 +381,11 @@ public class Upload_File_Firebase extends AppCompatActivity {
          * Documentation on it ( https://developer.android.com/reference/android/content/ContextWrapper#getExternalFilesDirs(java.lang.String) )
          * doesn't say anything related to that, forum reply from May 2021 claims that the online documentation needs to be updated regarding this
          */
-        AudioFolder = contextWrapper.getExternalFilesDir(Folder_Name);
-        Log.d(TAG,AudioFolder.getPath());
+        PathOfFolder = contextWrapper.getExternalFilesDir(Folder_Name);
+        Log.d(TAG,PathOfFolder.getPath());
         /** Checks if the folder has been made or already exists */
-        if(!AudioFolder.exists()) {
-            Toast.makeText(Upload_File_Firebase.this, "Error folder not made", Toast.LENGTH_SHORT).show();
+        if(!PathOfFolder.exists()) {
+            Toast.makeText(Upload_File_Firebase.this, "Error "+Folder_Name+" folder not made", Toast.LENGTH_SHORT).show();
         }
         else {
             Toast.makeText(Upload_File_Firebase.this, "Folder Made/Exists", Toast.LENGTH_SHORT).show();
@@ -428,7 +436,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
                  */
                 mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
                 /** Pass in the file object to be written. Call this after setOutputFormat() but before prepare() */
-                mRecorder.setOutputFile(getAudioRecordingFilePath(FolderPath));
+                mRecorder.setOutputFile(getAudioRecordingFilePath(AudioFolderPath));
                 /**
                  * Sets the audio encoder to be used for recording. If this method is not called,
                  * the output file will not contain an audio track.
@@ -498,7 +506,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
             /** Create new instance of media player */
             mediaPlayer = new MediaPlayer();
             /** Sets the data source as a content Uri (content URI of data to be played) */
-            mediaPlayer.setDataSource(getAudioRecordingFilePath(FolderPath));
+            mediaPlayer.setDataSource(getAudioRecordingFilePath(AudioFolderPath));
             /**
              * Prepares the player for playback, synchronously.
              * After setting the datasource and the display surface, you need to either call prepare() or prepareAsync().
@@ -602,6 +610,9 @@ public class Upload_File_Firebase extends AppCompatActivity {
                     /** Sets the video view visible while hiding image view */
                     VideoDisplay.setVisibility(View.VISIBLE);
                     ImageDisplay.setVisibility(View.INVISIBLE);
+
+                    new VideoCompression().execute("false",selectedMediaUri.toString(),CompressedVideoFolderPath);
+
                     /** Loads the video onto the video view via Uri */
                     VideoDisplay.setVideoURI(selectedMediaUri);
                     Log.d(TAG, "Video Displayed");
@@ -639,7 +650,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
              * child() gets a reference for the location at the specified relative path, Ex: child("Games") == "/Games"" so
              * by having multiple child(), it will become a file path like "/.../.../..."
              */
-            StorageReference ImageStorageReference = mstorageReference.child("Album").child("Images").child(fileName + ".png");
+            StorageReference ImageStorageReference = mstorageReference.child("Album").child("Images").child(fileName + ".jpg");
             StorageReference VideoStorageReference = mstorageReference.child("Album").child("Videos").child(fileName + ".mp4");
             StorageReference AudioStorageReference = mstorageReference.child("Album").child("Voice Recordings").child(fileName + ".3gp");
 
@@ -739,7 +750,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
             }
 
             /** Checks if the Uri points to a video */
-            else if (MediaUri.toString().contains("video")) {
+            else if (MediaUri.toString().contains("mp4")) {
 
                 try {
                     /** Upload the image file to the cloud storage */
@@ -837,6 +848,50 @@ public class Upload_File_Firebase extends AppCompatActivity {
             /** Sends a short message to user what to check before trying to upload again */
             Toast.makeText(this,"Please record an audio, select an image or video" +
                     " and key a file name before uploading",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public class VideoCompression extends AsyncTask<String,String,String> {
+
+        Dialog dialog;
+        String videoPath;
+        Uri videoUri;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            /** Display dialog for compression in progress*/
+            dialog = ProgressDialog.show(Upload_File_Firebase.this, "","Compressing video ....");
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            /** Initialize video path */
+            videoPath = null;
+
+            try {
+                /** Intialize video uri */
+                videoUri = Uri.parse(strings[1]);
+                videoPath = SiliCompressor.with(Upload_File_Firebase.this).compressVideo(videoUri, strings[2]);
+                Log.d(TAG,"Compressed video path is "+videoPath);
+            } catch (URISyntaxException e) {
+                Log.e(TAG,"Failed to compress video");
+            }
+
+            /** Returns compressed video path */
+            return videoPath;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+            /** Dismiss dialog */
+            dialog.dismiss();
+
+            File videofile = new File(s);
+            selectedMediaUri = Uri.fromFile(videofile);
+            Log.d(TAG,"Compressed video uri is "+selectedMediaUri);
         }
     }
 }

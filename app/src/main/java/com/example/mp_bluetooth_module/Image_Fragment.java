@@ -57,16 +57,15 @@ public class Image_Fragment extends Fragment {
             @Override
             public void OnItemClick(DataSnapshot ImageSnapshot, int ImagePosition) {
                 SelectedImage = ImageSnapshot.getValue(Firebase_Database_Image_Video_Audio_Upload.class);
-                Log.d(TAG,"Position clicked is "+ImagePosition);
+                Log.d(TAG,"Image Position clicked is "+ImagePosition);
                 Intent SelectedImageIntent = new Intent(getContext(), Selected_Firebase_File_Display.class);
-                SelectedImageIntent.putExtra("ImageData",SelectedImage);
+                SelectedImageIntent.putExtra("Data",SelectedImage);
                 startActivity(SelectedImageIntent);
             }
         });
 
         twoColumnbyOneRowGridlayout = new GridLayoutManager(this.getContext(), 2);
         FragClassImageRecyclerView.setLayoutManager(twoColumnbyOneRowGridlayout);
-        ImageAdapter.notifyDataSetChanged();
         FragClassImageRecyclerView.setAdapter(ImageAdapter);
 
     }

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
@@ -15,7 +16,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -38,13 +41,17 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
     private static final String TAG = "CheckPoint";
     private CountDownTimer InterruptTimer;
     BluetoothBackground Service;
-    boolean Bound = false, DeletedAudio = false, DeletedImageOrVideo = false;
+    boolean Bound = false, DeletedAudio = true, DeletedImageOrVideo = true,
+            DataIsImage = false, DataIsVideo = false;
     private FloatingActionButton BackBtn, DeleteImageBtn;
     private Button PlayAudioBtn;
     private ImageView SelectedImageView;
-    private Firebase_Database_Image_Video_Audio_Upload ImageData, AudioData, DeleteAudioDataClass
+    private VideoView SelectedVideoView;
+    private MediaController VideomediaController;
+    private Firebase_Database_Image_Video_Audio_Upload Data, AudioData, DeleteAudioDataClass
             , DeleteImageDataClass, DeleteVideoDataClass;
-    private String SelectedImageName,SelectedImageUrl,AudioFileToQuery;
+    private String SelectedImageName,SelectedImageUrl,AudioFileToQuery, ActualImageFileName
+            , SelectedVideoName, SelectedVideoUrl, ImageOrVideoFileDeleteName;
     private Query SearchAudioFile, SearchToDeleteAudioRef, SearchToDeleteImageRef, SearchToDeleteVideoRef;
     private MediaPlayer AudioFilePlayer;
     private DatabaseReference BaseDatabaseReference;
@@ -55,26 +62,60 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selected_firebase_file);
 
+        SelectedVideoView = findViewById(R.id.SelectedFirebaseVideoView);
         SelectedImageView = findViewById(R.id.SelectedFirebaseImageView);
         BackBtn = findViewById(R.id.SelectedImageBackBtn);
         DeleteImageBtn = findViewById(R.id.DeleteSelectedImageBtn);
         PlayAudioBtn = findViewById(R.id.SelectedImagePlayAudioBtn);
 
-        BaseStorageReference = FirebaseStorage.getInstance().getReference();
-
+        BaseStorageReference = FirebaseStorage.getInstance().getReference().child("Album");
         BaseDatabaseReference = FirebaseDatabase.getInstance("https://image-video-album-default-rtdb.asia-southeast1.firebasedatabase.app")
                 .getReference().child("Album");
 
-        ImageData = (Firebase_Database_Image_Video_Audio_Upload)
-                getIntent().getSerializableExtra("ImageData");
+        Data = (Firebase_Database_Image_Video_Audio_Upload)
+                getIntent().getSerializableExtra("Data");
 
-        SelectedImageUrl = ImageData.getFileDownloadUri();
-        Picasso.get().load(SelectedImageUrl).into(SelectedImageView);
+        if(Data.getFileName().contains("png")) {
 
-        SelectedImageName = ImageData.getFileName();
-        Log.d(TAG,"Image file name is "+SelectedImageName);
-        AudioFileToQuery = SelectedImageName.replace(".png",".3gp");
-        Log.d(TAG,"Audio file to query is "+AudioFileToQuery);
+            DataIsImage = true;
+            DataIsVideo = false;
+
+            SelectedImageView.setVisibility(View.VISIBLE);
+            SelectedVideoView.setVisibility(View.INVISIBLE);
+
+            SelectedImageUrl = Data.getFileDownloadUri();
+            Picasso.get().load(SelectedImageUrl).into(SelectedImageView);
+
+            ImageOrVideoFileDeleteName = Data.getFileName();
+
+            SelectedImageName = Data.getFileName();
+            Log.d(TAG, "Image file name is " + SelectedImageName);
+            AudioFileToQuery = SelectedImageName.replace("png", "3gp");
+            Log.d(TAG, "Audio file to query is " + AudioFileToQuery);
+        }
+
+        else if(Data.getFileName().contains("mp4")) {
+
+            DataIsImage = false;
+            DataIsVideo = true;
+
+            SelectedVideoView.setVisibility(View.VISIBLE);
+            SelectedImageView.setVisibility(View.INVISIBLE);
+
+            SelectedVideoUrl = Data.getFileDownloadUri();
+            SelectedVideoView.setVideoURI(Uri.parse(SelectedVideoUrl));
+
+            VideomediaController = new MediaController(this);
+            SelectedVideoView.setMediaController(VideomediaController);
+            VideomediaController.setAnchorView(SelectedVideoView);
+
+            ImageOrVideoFileDeleteName = Data.getFileName();
+
+            SelectedVideoName = Data.getFileName();
+            Log.d(TAG,"Video file name is "+SelectedVideoName);
+            AudioFileToQuery = SelectedVideoName.replace("mp4","3gp");
+            Log.d(TAG,"Audio file to query is "+AudioFileToQuery);
+        }
 
         QueryForSelectedAudioFile(AudioFileToQuery);
 
@@ -94,7 +135,12 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
         DeleteImageBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Delete_ImageOrVideo_And_Audio_From_Database_And_Storage(SelectedImageName,AudioFileToQuery);
+                if(DeletedImageOrVideo&&DeletedAudio) {
+                    Delete_ImageOrVideo_And_Audio_From_Database_And_Storage(ImageOrVideoFileDeleteName, AudioFileToQuery);
+                }
+                else {
+                    Toast.makeText(Selected_Firebase_File_Display.this,"Deleting in progress, Please wait", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -162,24 +208,24 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
         DeletedImageOrVideo = false;
 
         SearchToDeleteAudioRef = BaseDatabaseReference.child("Voice Recordings");
-        SearchToDeleteAudioRef.addValueEventListener(new ValueEventListener() {
+        SearchToDeleteAudioRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot TobeDeletedAudioFile : snapshot.getChildren()) {
+                for (DataSnapshot TobeDeletedAudioFile : snapshot.getChildren()) {
                     DeleteAudioDataClass = TobeDeletedAudioFile.getValue(Firebase_Database_Image_Video_Audio_Upload.class);
                     if ((DeleteAudioDataClass.getFileName()).equals(DeleteAudioFileName)) {
                         TobeDeletedAudioFile.getRef().removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                Log.d(TAG,"Deleted Audio file from realtime database");
+                                Log.d(TAG, "Deleted Audio file from realtime database");
 
-                                AudioStorageRef = BaseStorageReference.child("Album").child("Voice Recordings").child(DeleteAudioFileName);
+                                AudioStorageRef = BaseStorageReference.child("Voice Recordings").child(DeleteAudioFileName);
                                 AudioStorageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void unused) {
-                                        Log.d(TAG,"Deleted Audio file from online storage");
+                                        Log.d(TAG, "Deleted Audio file from online storage");
                                         DeletedAudio = true;
-                                        Log.d(TAG,String.valueOf(DeletedAudio));
+                                        Log.d(TAG, String.valueOf(DeletedAudio));
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
@@ -191,7 +237,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG,"Failed to delete Audio file from realtime database");
+                                Log.e(TAG, "Failed to delete Audio file from realtime database");
                             }
                         });
                     }
@@ -200,56 +246,105 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG,"Unable to get Audio data for deletion");
+                Log.e(TAG, "Unable to get Audio data for deletion");
             }
         });
 
 
+        if (DataIsImage) {
+            SearchToDeleteImageRef = BaseDatabaseReference.child("Images");
+            SearchToDeleteImageRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot TobeDeletedImageFile : snapshot.getChildren()) {
+                        DeleteImageDataClass = TobeDeletedImageFile.getValue(Firebase_Database_Image_Video_Audio_Upload.class);
+                        if ((DeleteImageDataClass.getFileName()).equals(DeleteImageOrVideoFileName)) {
+                            TobeDeletedImageFile.getRef().removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    Log.d(TAG, "Deleted Image file from realtime database");
 
-        SearchToDeleteImageRef = BaseDatabaseReference.child("Images");
-        SearchToDeleteImageRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot TobeDeletedImageFile : snapshot.getChildren()) {
-                    DeleteImageDataClass = TobeDeletedImageFile.getValue(Firebase_Database_Image_Video_Audio_Upload.class);
-                    if ((DeleteImageDataClass.getFileName()).equals(DeleteImageOrVideoFileName)) {
-                        TobeDeletedImageFile.getRef().removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
-                                Log.d(TAG,"Deleted Image file from realtime database");
-
-                                ImageStorageRef = BaseStorageReference.child("Album").child("Images").child(DeleteImageOrVideoFileName);
-                                ImageStorageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void unused) {
-                                        Log.d(TAG,"Deleted Image file from online storage");
-                                        DeletedImageOrVideo = true;
-                                        Log.d(TAG,String.valueOf(DeletedImageOrVideo));
-                                        Toast.makeText(Selected_Firebase_File_Display.this,
-                                                "Image And Audio Deleted from online storage and database successfully",Toast.LENGTH_SHORT).show();
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.e(TAG,"Failed to Delete image file from online storage");
-                                    }
-                                });
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG,"Failed to delete image file from realtime database");
-                            }
-                        });
+                                    ActualImageFileName = DeleteImageOrVideoFileName.replace("png", "jpg");
+                                    ImageStorageRef = BaseStorageReference.child("Images").child(ActualImageFileName);
+                                    ImageStorageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            Log.d(TAG, "Deleted Image file from online storage");
+                                            DeletedImageOrVideo = true;
+                                            Log.d(TAG, String.valueOf(DeletedImageOrVideo));
+                                            Toast.makeText(Selected_Firebase_File_Display.this,
+                                                    "Image And Audio Deleted from online storage and database successfully", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.e(TAG, "Failed to Delete Image file from online storage");
+                                        }
+                                    });
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.e(TAG, "Failed to delete Image file from realtime database");
+                                }
+                            });
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG,"Unable to get Image data for deletion");
-            }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "Unable to get Image data for deletion");
+                }
+            });
+        }
+
+        if(DataIsVideo) {
+            SearchToDeleteVideoRef = BaseDatabaseReference.child("Videos");
+            SearchToDeleteVideoRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for(DataSnapshot TobeDeletedVideoFile: snapshot.getChildren()) {
+                        DeleteVideoDataClass = TobeDeletedVideoFile.getValue(Firebase_Database_Image_Video_Audio_Upload.class);
+                        if((DeleteVideoDataClass.getFileName()).equals(DeleteImageOrVideoFileName)) {
+                            TobeDeletedVideoFile.getRef().removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    Log.d(TAG, "Deleted Video file from realtime database");
+
+                                    VideoStorageRef = BaseStorageReference.child("Videos").child(DeleteImageOrVideoFileName);
+                                    VideoStorageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            Log.d(TAG, "Deleted Video file from online storage");
+                                            DeletedImageOrVideo = true;
+                                            Log.d(TAG, String.valueOf(DeletedImageOrVideo));
+                                            Toast.makeText(Selected_Firebase_File_Display.this,
+                                                    "Video And Audio Deleted from online storage and database successfully", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.e(TAG, "Failed to Delete Video file from online storage");
+                                        }
+                                    });
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.e(TAG, "Failed to delete Video file from realtime database");
+                                }
+                            });
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "Unable to get Video data for deletion");
+                }
+            });
+        }
     }
 
 

@@ -3,5 +3,6 @@
     <string name="title_activity_image_video_album">Image Video Album</string>
     <string name="tab_text_1">Images</string>
     <string name="tab_text_2">Videos</string>
-    <string name="ImageviewDescription">Retrieved Image That Was Uploaded From Gallery or Album</string>
+    <string name="ImageRecyclerviewDescription">Retrieved Image That Was Uploaded From Gallery or Album</string>
+    <string name="VideoRecyclerviewDescription">Retrieved Video That Was Uploaded From Gallery or Album</string>
 </resources>

@@ -50,7 +50,7 @@ public class AlbumImageAdapter extends FirebaseRecyclerAdapter<Firebase_Database
 
     @Override
     public void onError(DatabaseError e) {
-        Log.e(TAG,"Cannot get data from Firebase Realtime Database");
+        Log.e(TAG,"Cannot get Image options data from Firebase Realtime Database");
     }
 
     public class ImageAlbumViewHolder extends RecyclerView.ViewHolder {
@@ -77,7 +77,6 @@ public class AlbumImageAdapter extends FirebaseRecyclerAdapter<Firebase_Database
         public void setImage(Uri ImageUri) {
             Picasso.get().load(ImageUri).fit().into(CardFragmentImageview);
         }
-
     }
 
     public interface OnItemClickListener {

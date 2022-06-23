@@ -6,6 +6,21 @@
     android:layout_height="match_parent"
     tools:context=".Selected_Firebase_File_Display">
 
+    <FrameLayout
+        android:layout_width="349dp"
+        android:layout_height="538dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <VideoView
+            android:id="@+id/SelectedFirebaseVideoView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+    </FrameLayout>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/DeleteSelectedImageBtn"
         android:layout_width="wrap_content"
