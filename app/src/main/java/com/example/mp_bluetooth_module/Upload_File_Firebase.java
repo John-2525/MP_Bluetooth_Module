@@ -611,9 +611,16 @@ public class Upload_File_Firebase extends AppCompatActivity {
                     VideoDisplay.setVisibility(View.VISIBLE);
                     ImageDisplay.setVisibility(View.INVISIBLE);
 
+                    /**
+                     * Creates a new instance of the VideoCompression class with uri and folder path variable
+                     * as parameters before executing it to compress the selected video.
+                     * Returns the uri of the newly compressed video when done
+                     *
+                     * This is to save bandwidth when streaming the video from firebase online storage
+                     */
                     new VideoCompression().execute("false",selectedMediaUri.toString(),CompressedVideoFolderPath);
 
-                    /** Loads the video onto the video view via Uri */
+                    /** Loads the newly compressed video onto the video view via Uri */
                     VideoDisplay.setVideoURI(selectedMediaUri);
                     Log.d(TAG, "Video Displayed");
 
@@ -851,12 +858,22 @@ public class Upload_File_Firebase extends AppCompatActivity {
         }
     }
 
+    /**
+     * Function to compress videos in order to save bandwidth when streaming them from online
+     * storage later in the Selected_Firebase_File_Display class
+     *
+     * Note the <String, String, String> can be used to contain variables for this 3 types :
+     * parameters, progress and result
+     * BUT not all the types must be used. For mine, I am using only the parameter type
+     */
     public class VideoCompression extends AsyncTask<String,String,String> {
 
+        /** Initializing dialog and variables */
         Dialog dialog;
         String videoPath;
         Uri videoUri;
 
+        /** Function is to setup the task before executing it */
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -864,6 +881,10 @@ public class Upload_File_Firebase extends AppCompatActivity {
             dialog = ProgressDialog.show(Upload_File_Firebase.this, "","Compressing video ....");
         }
 
+        /**
+         * Function to perform the task in a background thread
+         * This is called immediately after onPreExecute() is called
+         */
         @Override
         protected String doInBackground(String... strings) {
             /** Initialize video path */
@@ -872,6 +893,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
             try {
                 /** Intialize video uri */
                 videoUri = Uri.parse(strings[1]);
+                /** Gets the path of where the newly compressed video is stored and sets it*/
                 videoPath = SiliCompressor.with(Upload_File_Firebase.this).compressVideo(videoUri, strings[2]);
                 Log.d(TAG,"Compressed video path is "+videoPath);
             } catch (URISyntaxException e) {
@@ -889,7 +911,15 @@ public class Upload_File_Firebase extends AppCompatActivity {
             /** Dismiss dialog */
             dialog.dismiss();
 
+            /**
+             * Creates new instance of file based on the result of the doInBackground()
+             * which should be the path of the compressed video if not wrong
+             */
             File videofile = new File(s);
+            /**
+             * Generates uri from the compressed video file and stores it into the
+             * global variable for uri so that it can be used later
+             */
             selectedMediaUri = Uri.fromFile(videofile);
             Log.d(TAG,"Compressed video uri is "+selectedMediaUri);
         }

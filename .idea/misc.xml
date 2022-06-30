@@ -4,7 +4,9 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/activity_bluetooth_device_text_view.xml" value="0.264" />
+        <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/activity_create_and_upload_reminder.xml" value="0.264" />
         <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/activity_diffuser_listview.xml" value="0.25416666666666665" />
+        <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/activity_display_all_reminders.xml" value="0.264" />
         <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/activity_image_video_album.xml" value="0.264" />
         <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/activity_main.xml" value="0.264" />
         <entry key="..\:/Android_Projects/MP_Bluetooth_Module/app/src/main/res/layout/activity_selected_firebase_file.xml" value="0.264" />

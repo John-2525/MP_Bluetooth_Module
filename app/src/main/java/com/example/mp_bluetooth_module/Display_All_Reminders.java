@@ -1,90 +1,76 @@
 package com.example.mp_bluetooth_module;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.tabs.TabLayout;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager2.widget.ViewPager2;
-
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 
-import com.example.mp_bluetooth_module.databinding.ActivityImageVideoAlbumBinding;
-import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import Adapter.ViewPage2Adapter;
 import Background_Items.BluetoothBackground;
 
-public class Image_Video_Album extends AppCompatActivity {
+public class Display_All_Reminders extends AppCompatActivity {
 
-    /** Initializing variables */
-    private FloatingActionButton UploadFab, BackFab;
-    private TabLayout tabLayout;
-    private ViewPager2 viewPager2;
+    /** Initialize variables */
+    private RecyclerView DisplayAllReminderRecyclerView;
+    private FloatingActionButton BackFAB, SetReminderFAB;
     BluetoothBackground Service;
-    private String[] tabTitles = {"Images","Videos"};
     boolean Bound = false;
     private static final String TAG = "CheckPoint";
     private CountDownTimer InterruptTimer;
+    private NotificationManagerCompat ReminderNotificationManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_image_video_album);
+        setContentView(R.layout.activity_display_all_reminders);
 
-        /** Finding and initializing the elements in the xml layout file */
-        UploadFab = findViewById(R.id.UploadFaBtn);
-        BackFab = findViewById(R.id.BackFaBtn);
-        viewPager2 = findViewById(R.id.view_pager2);
-        tabLayout = findViewById(R.id.tabs);
+        DisplayAllReminderRecyclerView = findViewById(R.id.Reminder_Recycler_View);
+        BackFAB = findViewById(R.id.Reminder_Recycler_View_Floating_Back_Btn);
+        SetReminderFAB = findViewById(R.id.Reminder_Recycler_View_Floating_Set_Reminder_Button);
 
-        /**
-         * Creates a new instance of viewpage2 adapter to load the fragments
-         * into the viewpage2 in the xml layout
-         *
-         * Afterwards sets the adapter to the xml layout viewpager2
-         */
-        ViewPage2Adapter adapter = new ViewPage2Adapter(this);
-        viewPager2.setAdapter(adapter);
+        ReminderNotificationManager = NotificationManagerCompat.from(this);
 
-        /**
-         * Links the fragments position to the position of the tabs in the tablayout
-         * so when swiping between fragments, the tab also follows suit
-         *
-         * Also sets the custom name of tabs (if any) via using a array and int variable
-         * to determine which tab has what name
-         */
-        new TabLayoutMediator(tabLayout, viewPager2, new TabLayoutMediator.TabConfigurationStrategy() {
+        BackFAB.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                tab.setText((tabTitles[position]));
-            }
-        }).attach();
-
-        /** Listens for any clicks on the upload floating action button */
-        UploadFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SwitchToUploadActivity();
-            }
-        });
-
-        /** Listens for any clicks on the back floating action button */
-        BackFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
                 ReturnToMainMenu();
             }
         });
+
+        SetReminderFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CreateNewReminder();
+            }
+        });
     }
+
+    public void ReturnToMainMenu() {
+        Service.SendString("2");
+        Intent intentMainMenu = new Intent(this, MainActivity.class);
+        startActivity(intentMainMenu);
+    }
+
+    public void CreateNewReminder() {
+        Intent intentNewReminder = new Intent(this,Create_And_Upload_Reminder.class);
+        startActivity(intentNewReminder);
+    }
+
 
 
     /** Defines callbacks for service binding, passed to bindService() */
@@ -134,9 +120,9 @@ public class Image_Video_Album extends AppCompatActivity {
          * " InterrputTimer = new CountDownTimer(...) " is to create a new instance of a timer
          * whenever this activity becomes visible to the user
          */
-       InterruptTimer = new CountDownTimer(30000,1000) {
+        InterruptTimer = new CountDownTimer(30000,1000) {
 
-           /** A function that activates every count down interval (set by the user) */
+            /** A function that activates every count down interval (set by the user) */
             public void onTick(long millisUntilFinished) {
                 Log.d("TIMER","seconds remaining: " + millisUntilFinished / 1000);
             };
@@ -176,16 +162,4 @@ public class Image_Video_Album extends AppCompatActivity {
         Log.d(TAG,"Bound service is unbounded or destroyed");
     }
 
-    /** Switches to the Upload image/video and audio activity by using intent */
-    public void SwitchToUploadActivity() {
-        Intent uploadIntent = new Intent(Image_Video_Album.this,Upload_File_Firebase.class);
-        startActivity(uploadIntent);
-    }
-
-    /** Returns back to the main menu using intent and sends a signal to toggle off the diffuser */
-    public void ReturnToMainMenu() {
-        Service.SendString("1");
-        Intent mainIntent = new Intent(Image_Video_Album.this, MainActivity.class);
-        startActivity(mainIntent);
-    }
 }

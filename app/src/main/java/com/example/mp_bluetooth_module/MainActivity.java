@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
                else {
                     Toast.makeText(MainActivity.this,"Please connect to a bluetooth device first under Diffuser Bluetooth",Toast.LENGTH_SHORT).show();
                 }
+               OpenReminders();
             }
         });
 
@@ -103,6 +104,12 @@ public class MainActivity extends AppCompatActivity {
     public void OpenImageVideoAlbum() {
         Intent intentAlbum = new Intent(this, Image_Video_Album.class);
         startActivity(intentAlbum);
+    }
+
+    /** This is to toggle to the Reminders Activity */
+    public void OpenReminders() {
+        Intent intentReminder = new Intent(this, Display_All_Reminders.class);
+        startActivity(intentReminder);
     }
 
 
