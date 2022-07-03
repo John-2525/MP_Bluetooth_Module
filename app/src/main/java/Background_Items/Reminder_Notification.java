@@ -18,7 +18,8 @@ import Classes.Reminder_For_Weekly_And_Single;
 public class Reminder_Notification extends BroadcastReceiver {
 
     private static final String TAG = "CheckPoint";
-    private Reminder_For_Weekly_And_Single ReminderDetails;
+    private String Message;
+    private int RequestCode;
 
     /** This function will be called when the alarm fires */
     @Override
@@ -26,9 +27,11 @@ public class Reminder_Notification extends BroadcastReceiver {
 
         Log.d(TAG,"Notification being made");
 
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        /** Getting Request Code from intent created in Create_And_Upload_Reminder */
+        Message = intent.getStringExtra("ReminderMsg");
+        RequestCode = intent.getIntExtra("RequestCode",-1);
 
-        ReminderDetails = (Reminder_For_Weekly_And_Single) intent.getSerializableExtra("ReminderData");
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Intent repeating_intent = new Intent(context,Display_All_Reminders.class);
         repeating_intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -36,9 +39,9 @@ public class Reminder_Notification extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getActivity(context,1,repeating_intent,PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,"REMINDER_CHANNEL")
                 .setContentIntent(pendingIntent)
-                .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                .setSmallIcon(android.R.drawable.ic_menu_agenda)
                 .setContentTitle("Reminder Alert")
-                .setContentText(ReminderDetails.getReminderMessage())
+                .setContentText(Message)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setAutoCancel(true);
 

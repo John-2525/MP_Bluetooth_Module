@@ -31,7 +31,6 @@ public class Display_All_Reminders extends AppCompatActivity {
     boolean Bound = false;
     private static final String TAG = "CheckPoint";
     private CountDownTimer InterruptTimer;
-    private NotificationManagerCompat ReminderNotificationManager;
 
 
     @Override
@@ -42,8 +41,6 @@ public class Display_All_Reminders extends AppCompatActivity {
         DisplayAllReminderRecyclerView = findViewById(R.id.Reminder_Recycler_View);
         BackFAB = findViewById(R.id.Reminder_Recycler_View_Floating_Back_Btn);
         SetReminderFAB = findViewById(R.id.Reminder_Recycler_View_Floating_Set_Reminder_Button);
-
-        ReminderNotificationManager = NotificationManagerCompat.from(this);
 
         BackFAB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,6 +136,7 @@ public class Display_All_Reminders extends AppCompatActivity {
             Log.d(TAG,"Timer is started");
         }
     }
+
 
     /** When activity is not visible to the user, stops the service by unbinding it from the activity */
     @Override
