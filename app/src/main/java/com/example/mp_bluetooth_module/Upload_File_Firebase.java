@@ -474,31 +474,36 @@ public class Upload_File_Firebase extends AppCompatActivity {
 
     /** Function to stop audio recording from device's built in microphone */
     private void stopRecording() {
-        /**
-         * Stops recording. Call this after start().
-         * Once recording is stopped, you will have to configure it again as if it has just been constructed.
-         *
-         * Note that a RuntimeException is intentionally thrown to the application, if no valid audio/video data has
-         * been received when stop() is called.
-         *
-         * This can happen for instance if stop() is called immediately after start().
-         * The failure lets the application take action accordingly to clean up the output file like
-         * for instance, delete th output file. As the output file will not be properly constructed when this happens.
-         */
-        mRecorder.stop();
-        /**
-         * Releases resources associated with this MediaRecorder object.
-         * It is good practice to call this method when you're done using the MediaRecorder
-         *
-         * If not called, unnecessary resources like memory and codec will be held, increase
-         * battery consumption and recording failure for other applications due to running multiple
-         * instances of the same codec being unsupported
-         * or degraded performance if multiple codec instances are supported
-         */
-        mRecorder.release();
-        /** Nullifies the mediarecorder to mark it for the Garbage collector to collect the object */
-        mRecorder = null;
-        Toast.makeText(Upload_File_Firebase.this, "Recording Stopped", Toast.LENGTH_SHORT).show();
+        if(mRecorder != null) {
+            /**
+             * Stops recording. Call this after start().
+             * Once recording is stopped, you will have to configure it again as if it has just been constructed.
+             *
+             * Note that a RuntimeException is intentionally thrown to the application, if no valid audio/video data has
+             * been received when stop() is called.
+             *
+             * This can happen for instance if stop() is called immediately after start().
+             * The failure lets the application take action accordingly to clean up the output file like
+             * for instance, delete th output file. As the output file will not be properly constructed when this happens.
+             */
+            mRecorder.stop();
+            /**
+             * Releases resources associated with this MediaRecorder object.
+             * It is good practice to call this method when you're done using the MediaRecorder
+             *
+             * If not called, unnecessary resources like memory and codec will be held, increase
+             * battery consumption and recording failure for other applications due to running multiple
+             * instances of the same codec being unsupported
+             * or degraded performance if multiple codec instances are supported
+             */
+            mRecorder.release();
+            /** Nullifies the mediarecorder to mark it for the Garbage collector to collect the object */
+            mRecorder = null;
+            Toast.makeText(Upload_File_Firebase.this, "Recording Stopped", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(Upload_File_Firebase.this,"Please start reccording audio first before stopping",Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void PlayAudio() {

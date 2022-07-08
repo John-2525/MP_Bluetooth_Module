@@ -6,12 +6,23 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import com.example.mp_bluetooth_module.Create_And_Upload_Reminder;
 import com.example.mp_bluetooth_module.Display_All_Reminders;
+import com.example.mp_bluetooth_module.On_Click_Notification_Display;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import Classes.Reminder_For_Weekly_And_Single;
 
@@ -33,10 +44,11 @@ public class Reminder_Notification extends BroadcastReceiver {
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent repeating_intent = new Intent(context,Display_All_Reminders.class);
+        Intent repeating_intent = new Intent(context, On_Click_Notification_Display.class);
+        repeating_intent.putExtra("DisplayReminderMessage",Message);
+        repeating_intent.putExtra("ClickFromOutsideApp","true");
         repeating_intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(context,1,repeating_intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context,RequestCode,repeating_intent,PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,"REMINDER_CHANNEL")
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(android.R.drawable.ic_menu_agenda)
@@ -45,6 +57,6 @@ public class Reminder_Notification extends BroadcastReceiver {
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setAutoCancel(true);
 
-        notificationManager.notify(1,builder.build());
+        notificationManager.notify(RequestCode,builder.build());
     }
 }

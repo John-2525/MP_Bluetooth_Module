@@ -19,6 +19,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -26,6 +27,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -46,10 +48,13 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -84,7 +89,7 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
 
     private static final int PERMISSION_REQUEST_CODE = 7;
     BluetoothBackground Service;
-    boolean Bound = false;
+    boolean Bound = false, UploadedAudioCustomClass = true, TimeSelected = false;
     private static final String TAG = "CheckPoint";
     private CountDownTimer InterruptTimer;
     private Button BackBtn, StartRecordingBtn, StopRecordingBtn, PlayAudioBtn,
@@ -95,10 +100,9 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
     private File AudioFolder, ArrayDataFolder, ArrayTxtFile, ArrayPath, RecordingAudioPath, RecordingAudioFile;
     private File[] ReminderAudioFileList;
     private Reminder_For_Weekly_And_Single ReminderDetailStorage;
-    private String RecordingAudioFolderPath, SelectedTimeTextTemplate, TextToBeSet,
+    private String RecordingAudioFolderPath, SelectedTimeTextTemplate, TwentyFourHourClockText, TwelveHourClockText,
     ReminderDescriptionText, SelectedDateTextTemplate, ArrayFolderPath, ExtReminderAudioSpecificFolder,
             mFileName;
-    private char ReminderTitleText;
     private String[] DayName = new String[]{"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"};
     private DialogFragment TimePicker;
     private int SelectedHour, SelectedMinute, SelectedYear, SelectedMonth, SelectedDay;
@@ -111,6 +115,7 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
     private MediaPlayer mediaPlayer;
     private StorageReference mstorageReference;
     private DatabaseReference mDataBaseReference;
+    private  Date CalendarDate;
 
 
     @Override
@@ -175,7 +180,12 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
         BackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ReturnToAllReminderDisplay();
+                if(UploadedAudioCustomClass) {
+                    ReturnToAllReminderDisplay();
+                }
+                else {
+                    Toast.makeText(Create_And_Upload_Reminder.this,"Please wait for upload to finish",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -184,6 +194,7 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
             public void onClick(View v) {
                 TimePicker = new Reminder_Time_Picker();
                 TimePicker.show(getSupportFragmentManager(),"Time Picker");
+                TimeSelected = true;
             }
         });
 
@@ -213,7 +224,14 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
             @Override
             public void onClick(View v) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    CreateReminder(CheckReminderIsToBeRecurring());
+                    if(!getReminderDescription().isEmpty() && TimeSelected &&
+                            SelectedYear > 0 && SelectedMonth >0 && SelectedDay >0 && RecordingAudioFile!=null) {
+                        CreateReminder(CheckReminderIsToBeRecurring());
+                    }
+                    else {
+                        Toast.makeText(Create_And_Upload_Reminder.this,"Please ensure that date, time are selected," +
+                                " message has been typed and an audio recording has been made", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -246,8 +264,10 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         SelectedHour = hourOfDay;
         SelectedMinute = minute;
-        TextToBeSet = SelectedTimeTextTemplate+hourOfDay+":"+minute;
-        DisplaySelectedTimeTextView.setText(TextToBeSet);
+        TwentyFourHourClockText = String.format("%02d:%02d", hourOfDay, minute);
+        TwelveHourClockText = String.format("%02d:%02d %s", (hourOfDay%12), minute,
+                hourOfDay < 12 ? "am" : "pm");
+        DisplaySelectedTimeTextView.setText(SelectedTimeTextTemplate+TwentyFourHourClockText+" or "+TwelveHourClockText);
     }
 
     public void ReturnToAllReminderDisplay() {
@@ -285,33 +305,32 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void CreateReminder(boolean Loop) {
+
+        Calendar ReminderCalender = Calendar.getInstance();
+        /** Use .HOUR_OF_DAY as it is used for 24H clock while .HOUR is used for 12H clock */
+        ReminderCalender.set(Calendar.HOUR_OF_DAY, SelectedHour);
+        ReminderCalender.set(Calendar.MINUTE, SelectedMinute);
+        ReminderCalender.set(Calendar.SECOND, 0);
+
+        ReminderDetailStorage = new Reminder_For_Weekly_And_Single();
+        ReminderDetailStorage.setReminderMessage(getReminderDescription());
+        ReminderDetailStorage.setLooping(Loop);
+
         if(Loop) {
             onDayRadioButtonClicked();
             RNJesus();
         }
         else {
-            if(!getReminderDescription().isEmpty() &&
-            SelectedYear > 0 && SelectedMonth >0 && SelectedDay >0 && RecordingAudioFile.exists()) {
-                Calendar ReminderCalender = Calendar.getInstance();
-                ReminderCalender.set(Calendar.YEAR, SelectedYear);
-                ReminderCalender.set(Calendar.MONTH, 6);
-                ReminderCalender.set(Calendar.DAY_OF_MONTH, SelectedDay);
-                /** Use .HOUR_OF_DAY as it is used for 24H clock while .HOUR is used for 12H clock */
-                ReminderCalender.set(Calendar.HOUR_OF_DAY, SelectedHour);
-                ReminderCalender.set(Calendar.MINUTE, SelectedMinute);
-                ReminderCalender.set(Calendar.SECOND, 0);
+            ReminderCalender.set(Calendar.YEAR, SelectedYear);
+            ReminderCalender.set(Calendar.MONTH, 6);
+            ReminderCalender.set(Calendar.DAY_OF_MONTH, SelectedDay);
+            CalendarDate = ReminderCalender.getTime();
+            ReminderDetailStorage.setReminderDate(CalendarDate);
 
-                ReminderDetailStorage = new Reminder_For_Weekly_And_Single();
-                ReminderDetailStorage.setReminderCalendar(ReminderCalender);
-                ReminderDetailStorage.setReminderMessage(getReminderDescription());
+            TimeSelected = false;
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    StartNonLoopingAlarm(ReminderDetailStorage);
-                }
-            }
-            else {
-                Toast.makeText(this,"Please ensure that date, time are selected," +
-                        " message has been typed and an audio recording has been made", Toast.LENGTH_SHORT).show();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                StartNonLoopingAlarm(ReminderDetailStorage);
             }
         }
     }
@@ -320,20 +339,22 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
     public void StartNonLoopingAlarm(Reminder_For_Weekly_And_Single RDetail) {
 
         int RequestCode = RNJesus();
+        RDetail.setRequestCode(RequestCode);
+        UploadRecordedAudioAndCustomClass(RDetail, RecordingAudioFile);
+
         Intent intentReminder = new Intent(this, Reminder_Notification.class);
         intentReminder.putExtra("ReminderMsg",RDetail.getReminderMessage());
-        intentReminder.putExtra("RequestCode",RequestCode);
-        RDetail.setRequestCode(RequestCode);
+        intentReminder.putExtra("RequestCode",RDetail.getRequestCode());
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this,RequestCode,intentReminder,PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, RDetail.getReminderCalendar().getTimeInMillis(),pendingIntent);
+            Calendar c = Calendar.getInstance();
+            c.setTime(RDetail.getReminderDate());
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(),pendingIntent);
         }
 
-        UploadRecordedAudioAndCustomClass(RDetail);
-
-        Toast.makeText(this,"Reminder Set",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,"Setting Reminder",Toast.LENGTH_SHORT).show();
     }
 
 
@@ -411,9 +432,11 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
                 int i = scanner.nextInt();
                 NumberArrayList.add(i);
             }
-            for(int ii=0;ii<NumberArrayList.size();ii++) {
-                Log.d(TAG, "From array : "+NumberArrayList.get(ii));
-            }
+
+          //  for(int ii=0;ii<NumberArrayList.size();ii++) {
+          //      Log.d(TAG, "From array : "+NumberArrayList.get(ii));
+          //  }
+
             Log.d(TAG, "Read txt file and returned an array of integer successfully");
         }
         catch (IOException e) {
@@ -423,8 +446,45 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
     }
 
 
-    public void UploadRecordedAudioAndCustomClass(Reminder_For_Weekly_And_Single CustomClass) {
+    public void UploadRecordedAudioAndCustomClass(Reminder_For_Weekly_And_Single CustomClass, File ReminderAudioFile) {
 
+        Uri ReminderAudioUri = Uri.fromFile(ReminderAudioFile);
+        StorageReference ReminderAudioStorage = mstorageReference.child("Reminder").child("Voice Recording").child(CustomClass.getReminderMessage());
+
+        try {
+            ReminderAudioStorage.putFile(ReminderAudioUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    ReminderAudioStorage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri AudioUri) {
+                            CustomClass.setReminderAudioDownloadURL(AudioUri.toString());
+
+                            mDataBaseReference.child("Reminders").push().setValue(CustomClass);
+                            UploadedAudioCustomClass = true;
+
+                            DisplaySelectedDate.setText(SelectedDateTextTemplate);
+                            DisplaySelectedTimeTextView.setText(SelectedTimeTextTemplate);
+                            ReminderDetailsEditText.setText("");
+
+                            //TODO Try to do the same for Upload_File_Firebase where the AudioFile = null
+                            // and edit text = blank when upload is successful later
+
+                            Toast.makeText(Create_And_Upload_Reminder.this, "Uploaded recorded audio and reminder to Firebase Successfully", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "Uploaded reminder audio and custom class");
+                        }
+                    });
+                }
+            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                    UploadedAudioCustomClass = false;
+                }
+            });
+        }
+        catch (Exception e) {
+            Log.e(TAG, "Could not upload reminder audio");
+        }
     }
 
 
@@ -463,7 +523,7 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
         /** Gets the file name from the EditText and checks if it already exists */
         mFileName = checkFileName(getReminderDescription());
         /** Prevents overlapping message by skipping this function if Boolean check is true */
-        if(!(EmptyText == true)) {
+        if(!EmptyText) {
             /** Checks if the EditText is not null name or error when .setOutputFile */
             if (mFileName != null) {
                 Log.d(TAG, "File name is " + mFileName);
@@ -527,31 +587,36 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
 
     /** Function to stop audio recording from device's built in microphone */
     private void stopRecording() {
-        /**
-         * Stops recording. Call this after start().
-         * Once recording is stopped, you will have to configure it again as if it has just been constructed.
-         *
-         * Note that a RuntimeException is intentionally thrown to the application, if no valid audio/video data has
-         * been received when stop() is called.
-         *
-         * This can happen for instance if stop() is called immediately after start().
-         * The failure lets the application take action accordingly to clean up the output file like
-         * for instance, delete th output file. As the output file will not be properly constructed when this happens.
-         */
-        mRecorder.stop();
-        /**
-         * Releases resources associated with this MediaRecorder object.
-         * It is good practice to call this method when you're done using the MediaRecorder
-         *
-         * If not called, unnecessary resources like memory and codec will be held, increase
-         * battery consumption and recording failure for other applications due to running multiple
-         * instances of the same codec being unsupported
-         * or degraded performance if multiple codec instances are supported
-         */
-        mRecorder.release();
-        /** Nullifies the mediarecorder to mark it for the Garbage collector to collect the object */
-        mRecorder = null;
-        Toast.makeText(Create_And_Upload_Reminder.this, "Recording Stopped", Toast.LENGTH_SHORT).show();
+        if(mRecorder != null) {
+            /**
+             * Stops recording. Call this after start().
+             * Once recording is stopped, you will have to configure it again as if it has just been constructed.
+             *
+             * Note that a RuntimeException is intentionally thrown to the application, if no valid audio/video data has
+             * been received when stop() is called.
+             *
+             * This can happen for instance if stop() is called immediately after start().
+             * The failure lets the application take action accordingly to clean up the output file like
+             * for instance, delete th output file. As the output file will not be properly constructed when this happens.
+             */
+            mRecorder.stop();
+            /**
+             * Releases resources associated with this MediaRecorder object.
+             * It is good practice to call this method when you're done using the MediaRecorder
+             *
+             * If not called, unnecessary resources like memory and codec will be held, increase
+             * battery consumption and recording failure for other applications due to running multiple
+             * instances of the same codec being unsupported
+             * or degraded performance if multiple codec instances are supported
+             */
+            mRecorder.release();
+            /** Nullifies the mediarecorder to mark it for the Garbage collector to collect the object */
+            mRecorder = null;
+            Toast.makeText(Create_And_Upload_Reminder.this, "Recording Stopped", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(Create_And_Upload_Reminder.this,"Please start recording audio first before stopping",Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -570,9 +635,8 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
             /** Start or resumes playback of media */
             mediaPlayer.start();
             Toast.makeText(Create_And_Upload_Reminder.this, "Playing Recording", Toast.LENGTH_SHORT).show();
-        }
-        catch (Exception e) {
-            Log.e(TAG,"Audio failed to play");
+        } catch (Exception e) {
+            Log.e(TAG, "Audio failed to play");
             e.printStackTrace();
         }
     }
@@ -582,11 +646,13 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
         /** See createDirectory(String Folder_Name) for the explanation of the 2 lines below this documentation */
         ContextWrapper contextWrapper = new ContextWrapper(getApplicationContext());
         RecordingAudioPath = contextWrapper.getExternalFilesDir(FolderPath);
+
         /**
          * Creates a new File instance from a parent pathname string
          * or parent abstract pathname and a child pathname string (from the EditText).
-         */
+        */
         RecordingAudioFile = new File(RecordingAudioPath,getReminderDescription()+".3gp");
+        RecordingAudioFile.setReadable(true, false);
         /** Converts this abstract pathname into a pathname string before returning it */
         return RecordingAudioFile.getPath();
     }
