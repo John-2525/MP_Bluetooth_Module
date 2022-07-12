@@ -3,8 +3,13 @@ package Background_Items;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ContentResolver;
+import android.media.AudioAttributes;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
+
+import com.example.mp_bluetooth_module.R;
 
 public class Notification_Channel extends Application {
 
@@ -22,14 +27,19 @@ public class Notification_Channel extends Application {
     }
 
     public void CreateReminderNotificationChannel() {
+
         /**
          * Create the NotificationChannel, but only on API 26+ because
          * the NotificationChannel class is new and not in the support library
          */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Importance = NotificationManager.IMPORTANCE_HIGH;
+
             NotificationChannel ReminderChannel = new NotificationChannel(REMINDER_CHANNEL_ID, ChannelName, Importance);
             ReminderChannel.setDescription(ChannelDescription);
+            ReminderChannel.enableVibration(true);
+            ReminderChannel.enableLights(true);
+
             /**
              * Register the channel with the system; you can't change the importance
              * or other notification behaviors after this

@@ -6,71 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".Create_And_Upload_Reminder">
 
-    <ScrollView
-        android:id="@+id/DaysOfTheWeekScrollView"
-        android:layout_width="300dp"
-        android:layout_height="122dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.669">
-
-        <RadioGroup
-            android:id="@+id/DayRadioGroup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <RadioButton
-                android:id="@+id/MondayradioButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Monday" />
-
-            <RadioButton
-                android:id="@+id/TuesdayradioButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Tuesday" />
-
-            <RadioButton
-                android:id="@+id/WednesdayradioButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Wednesday" />
-
-            <RadioButton
-                android:id="@+id/ThursdayradioButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Thursday" />
-
-            <RadioButton
-                android:id="@+id/FridayradioButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Friday" />
-
-            <RadioButton
-                android:id="@+id/SaturdayradioButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Saturday" />
-
-            <RadioButton
-                android:id="@+id/SundayradioButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Sunday" />
-        </RadioGroup>
-    </ScrollView>
-
     <EditText
         android:id="@+id/EditTextCreateReminderDetails"
         android:layout_width="331dp"
         android:layout_height="70dp"
         android:ems="10"
+        android:digits="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         android:gravity="start|top"
         android:hint="Please key in additional details of the reminder"
         android:inputType="textMultiLine"
@@ -115,18 +56,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.976" />
-
-    <Switch
-        android:id="@+id/LoopingReminderSwitch"
-        android:layout_width="300dp"
-        android:layout_height="50dp"
-        android:text="Loop Weekly"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.525" />
 
     <Button
         android:id="@+id/ReminderPlayRecordingAudioButton"
@@ -199,6 +128,43 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.739" />
+
+    <Switch
+        android:id="@+id/DailyLoopingSwitch"
+        android:layout_width="332dp"
+        android:layout_height="58dp"
+        android:text="Daily Looping"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.523" />
+
+    <TextView
+        android:id="@+id/DailyLoopingTextView"
+        android:layout_width="335dp"
+        android:layout_height="106dp"
+        android:gravity="center"
+        android:text="Please note that if time selected for reminder has passed, the reminder will start on the next day"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.707" />
+
+    <ProgressBar
+        android:id="@+id/UploadReminderProgressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.484" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

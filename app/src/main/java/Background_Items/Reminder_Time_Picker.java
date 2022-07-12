@@ -21,7 +21,7 @@ public class Reminder_Time_Picker extends DialogFragment {
         Calendar currentTime = Calendar.getInstance();
         hour = currentTime.get(Calendar.HOUR_OF_DAY);
         minutes = currentTime.get(Calendar.MINUTE);
-        return new TimePickerDialog(getActivity(),(TimePickerDialog.OnTimeSetListener) getActivity(),
-                hour,minutes, true);
+        return new TimePickerDialog(getActivity(),android.R.style.Theme_Holo_Light_Dialog_MinWidth
+                ,(TimePickerDialog.OnTimeSetListener) getActivity(), hour,minutes, true);
     }
 }

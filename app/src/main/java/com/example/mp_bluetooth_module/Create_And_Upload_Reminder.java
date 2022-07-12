@@ -4,22 +4,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import android.Manifest;
 import android.app.AlarmManager;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -33,14 +26,13 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.IBinder;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
+import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.Switch;
@@ -56,29 +48,20 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import Background_Items.BluetoothBackground;
 import Background_Items.Reminder_Notification;
@@ -95,27 +78,24 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
     private Button BackBtn, StartRecordingBtn, StopRecordingBtn, PlayAudioBtn,
     SelectReminderTimeBtn, CreateReminder, SelectDateBtn;
     private EditText ReminderDetailsEditText;
-    private TextView DisplaySelectedTimeTextView, DisplaySelectedDate;
-    private Switch WeeklyLoopingSwitch;
+    private TextView DisplaySelectedTimeTextView, DisplaySelectedDate, DailyLoopingNotice;
+    private Switch DailyLoopingSwitch;
     private File AudioFolder, ArrayDataFolder, ArrayTxtFile, ArrayPath, RecordingAudioPath, RecordingAudioFile;
     private File[] ReminderAudioFileList;
     private Reminder_For_Weekly_And_Single ReminderDetailStorage;
     private String RecordingAudioFolderPath, SelectedTimeTextTemplate, TwentyFourHourClockText, TwelveHourClockText,
     ReminderDescriptionText, SelectedDateTextTemplate, ArrayFolderPath, ExtReminderAudioSpecificFolder,
             mFileName;
-    private String[] DayName = new String[]{"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"};
     private DialogFragment TimePicker;
     private int SelectedHour, SelectedMinute, SelectedYear, SelectedMonth, SelectedDay;
     private boolean IsRecurring, EmptyText;
-    private boolean[] DayIsSelected;
-    private RadioGroup DayRadioGroupBtns;
-    private ScrollView CheckBoxScrollView;
     private ArrayList<Integer> GeneratedNumber;
     private MediaRecorder mRecorder;
     private MediaPlayer mediaPlayer;
     private StorageReference mstorageReference;
     private DatabaseReference mDataBaseReference;
-    private  Date CalendarDate;
+    private Date CalendarDate;
+    private ProgressBar UploadProgressBar;
 
 
     @Override
@@ -140,16 +120,18 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
         CreateReminder = findViewById(R.id.CreateReminderButton);
         SelectDateBtn = findViewById(R.id.SelectDateButton);
 
+
+        UploadProgressBar = findViewById(R.id.UploadReminderProgressBar);
+        DailyLoopingNotice = findViewById(R.id.DailyLoopingTextView);
         ReminderDetailsEditText = findViewById(R.id.EditTextCreateReminderDetails);
         DisplaySelectedTimeTextView = findViewById(R.id.DisplaySelectedTimeTextView);
         DisplaySelectedDate = findViewById(R.id.SelectedDateTextView);
-        WeeklyLoopingSwitch = findViewById(R.id.LoopingReminderSwitch);
-        DayRadioGroupBtns = findViewById(R.id.DayRadioGroup);
-        CheckBoxScrollView = findViewById(R.id.DaysOfTheWeekScrollView);
+        DailyLoopingSwitch = findViewById(R.id.DailyLoopingSwitch);
 
-        CheckBoxScrollView.setVisibility(View.INVISIBLE);
         SelectDateBtn.setVisibility(View.VISIBLE);
         DisplaySelectedDate.setVisibility(View.VISIBLE);
+        DailyLoopingNotice.setVisibility(View.INVISIBLE);
+        UploadProgressBar.setVisibility(View.INVISIBLE);
 
         Calendar DatePickcalendar = Calendar.getInstance();
         final int currentYear = DatePickcalendar.get(Calendar.YEAR);
@@ -160,18 +142,18 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
         getMicrophonePermission();
         CreateNumberTextFile("Generated_Number");
 
-        WeeklyLoopingSwitch.setOnClickListener(new View.OnClickListener() {
+        DailyLoopingSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(WeeklyLoopingSwitch.isChecked()) {
-                    CheckBoxScrollView.setVisibility(View.VISIBLE);
+                if(DailyLoopingSwitch.isChecked()) {
                     SelectDateBtn.setVisibility(View.INVISIBLE);
                     DisplaySelectedDate.setVisibility(View.INVISIBLE);
+                    DailyLoopingNotice.setVisibility(View.VISIBLE);
                 }
                 else {
-                    CheckBoxScrollView.setVisibility(View.INVISIBLE);
                     SelectDateBtn.setVisibility(View.VISIBLE);
                     DisplaySelectedDate.setVisibility(View.VISIBLE);
+                    DailyLoopingNotice.setVisibility(View.INVISIBLE);
                 }
             }
         });
@@ -224,13 +206,23 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
             @Override
             public void onClick(View v) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if(!getReminderDescription().isEmpty() && TimeSelected &&
-                            SelectedYear > 0 && SelectedMonth >0 && SelectedDay >0 && RecordingAudioFile!=null) {
-                        CreateReminder(CheckReminderIsToBeRecurring());
+                    if(!CheckReminderIsToBeRecurring()) {
+                        if (!getReminderDescription().isEmpty() && TimeSelected &&
+                                SelectedYear > 0 && SelectedMonth > 0 && SelectedDay > 0 && RecordingAudioFile != null) {
+                            CreateReminder(CheckReminderIsToBeRecurring());
+                        } else {
+                            Toast.makeText(Create_And_Upload_Reminder.this, "Please ensure that date, time are selected," +
+                                    " message has been typed and an audio recording has been made", Toast.LENGTH_SHORT).show();
+                        }
                     }
                     else {
-                        Toast.makeText(Create_And_Upload_Reminder.this,"Please ensure that date, time are selected," +
-                                " message has been typed and an audio recording has been made", Toast.LENGTH_SHORT).show();
+                        if(!getReminderDescription().isEmpty() && TimeSelected) {
+                            CreateReminder(CheckReminderIsToBeRecurring());
+                        }
+                        else {
+                            Toast.makeText(Create_And_Upload_Reminder.this, "Please ensure that a" +
+                                    " message has been typed, time is selected and an audio recording has been made", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             }
@@ -282,29 +274,17 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
     }
 
     public boolean CheckReminderIsToBeRecurring() {
-        IsRecurring = WeeklyLoopingSwitch.isChecked();
+        IsRecurring = DailyLoopingSwitch.isChecked();
         Log.d(TAG,"Reminder will loop recurring : "+IsRecurring);
         return IsRecurring;
     }
 
-    public void onDayRadioButtonClicked() {
-        DayIsSelected = new boolean[]{false,false,false,false,false,false,false};
-
-       if(DayRadioGroupBtns.getCheckedRadioButtonId() == -1) {
-           Toast.makeText(this,"Please select a day",Toast.LENGTH_SHORT).show();
-       }
-       else {
-           int selectedID = DayRadioGroupBtns.getCheckedRadioButtonId();
-           View radioBtn = DayRadioGroupBtns.findViewById(selectedID);
-           int position = DayRadioGroupBtns.indexOfChild(radioBtn);
-           DayIsSelected[position] = true;
-           Log.d(TAG,DayName[position]+" is selected");
-       }
-    }
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void CreateReminder(boolean Loop) {
+
+        UploadProgressBar.setVisibility(View.VISIBLE);
 
         Calendar ReminderCalender = Calendar.getInstance();
         /** Use .HOUR_OF_DAY as it is used for 24H clock while .HOUR is used for 12H clock */
@@ -317,8 +297,14 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
         ReminderDetailStorage.setLooping(Loop);
 
         if(Loop) {
-            onDayRadioButtonClicked();
-            RNJesus();
+            Calendar CheckTime = Calendar.getInstance();
+            if(CheckTime.after(ReminderCalender)) {
+                ReminderCalender.add(Calendar.DAY_OF_MONTH,1);
+            }
+            CalendarDate = ReminderCalender.getTime();
+            ReminderDetailStorage.setReminderDate(CalendarDate);
+
+            TimeSelected = false;
         }
         else {
             ReminderCalender.set(Calendar.YEAR, SelectedYear);
@@ -328,15 +314,14 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
             ReminderDetailStorage.setReminderDate(CalendarDate);
 
             TimeSelected = false;
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                StartNonLoopingAlarm(ReminderDetailStorage);
-            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            StartAlarm(ReminderDetailStorage);
         }
     }
 
 
-    public void StartNonLoopingAlarm(Reminder_For_Weekly_And_Single RDetail) {
+    public void StartAlarm(Reminder_For_Weekly_And_Single RDetail) {
 
         int RequestCode = RNJesus();
         RDetail.setRequestCode(RequestCode);
@@ -351,7 +336,12 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Calendar c = Calendar.getInstance();
             c.setTime(RDetail.getReminderDate());
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(),pendingIntent);
+            if(!RDetail.isLooping()) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, c.getTimeInMillis(), pendingIntent);
+            }
+            else if(RDetail.isLooping()) {
+                alarmManager.setRepeating(alarmManager.RTC_WAKEUP,c.getTimeInMillis(),alarmManager.INTERVAL_DAY,pendingIntent);
+            }
         }
 
         Toast.makeText(this,"Setting Reminder",Toast.LENGTH_SHORT).show();
@@ -463,12 +453,16 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
                             mDataBaseReference.child("Reminders").push().setValue(CustomClass);
                             UploadedAudioCustomClass = true;
 
+                            UploadProgressBar.setVisibility(View.INVISIBLE);
                             DisplaySelectedDate.setText(SelectedDateTextTemplate);
                             DisplaySelectedTimeTextView.setText(SelectedTimeTextTemplate);
                             ReminderDetailsEditText.setText("");
 
                             //TODO Try to do the same for Upload_File_Firebase where the AudioFile = null
                             // and edit text = blank when upload is successful later
+
+                            //TODO Remember to add the .3gp to the StorageRef at CustomClass.getReminderMessage()
+                            // and do the same for the cancel alarm in Display_All_Reminder or else errors will occur
 
                             Toast.makeText(Create_And_Upload_Reminder.this, "Uploaded recorded audio and reminder to Firebase Successfully", Toast.LENGTH_SHORT).show();
                             Log.d(TAG, "Uploaded reminder audio and custom class");
@@ -483,6 +477,7 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
             });
         }
         catch (Exception e) {
+            UploadProgressBar.setVisibility(View.INVISIBLE);
             Log.e(TAG, "Could not upload reminder audio");
         }
     }
@@ -512,7 +507,7 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
         else {
             /** Sets the Boolean flag for startRecording() */
             EmptyText = true;
-            Toast.makeText(this,"Please key in message for reminder",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Please key in message for reminder and/or remove any special characters from it",Toast.LENGTH_SHORT).show();
             return null;
         }
     }

@@ -4,8 +4,10 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
@@ -14,10 +16,12 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
+import androidx.core.graphics.ColorUtils;
 
 import com.example.mp_bluetooth_module.Create_And_Upload_Reminder;
 import com.example.mp_bluetooth_module.Display_All_Reminders;
 import com.example.mp_bluetooth_module.On_Click_Notification_Display;
+import com.example.mp_bluetooth_module.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -41,6 +45,7 @@ public class Reminder_Notification extends BroadcastReceiver {
         /** Getting Request Code from intent created in Create_And_Upload_Reminder */
         Message = intent.getStringExtra("ReminderMsg");
         RequestCode = intent.getIntExtra("RequestCode",-1);
+
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 

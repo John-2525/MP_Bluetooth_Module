@@ -79,6 +79,7 @@
         android:layout_width="287dp"
         android:layout_height="42dp"
         android:ems="10"
+        android:digits="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         android:hint="Key Details of Image or Video here : "
         android:inputType="textPersonName"
         app:layout_constraintBottom_toBottomOf="parent"

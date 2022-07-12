@@ -85,13 +85,16 @@ public class AllReminderAdapter extends FirebaseRecyclerAdapter<Reminder_For_Wee
 
         public void setLoopingTextAndDateTime (boolean looping, Date NotificationDateTime) {
             if(looping) {
-
+                String LoopMsg = "Daily Looping Notification at the above time";
+                LoopingTextView.setText(LoopMsg);
+                SimpleDateFormat LoopingdateFormat = new SimpleDateFormat("HH:mm / hh:mm a");
+                DateTimeTextView.setText(LoopingdateFormat.format(NotificationDateTime));
             }
             else {
-                String NonloopMsg = "No looping, single use notification";
+                String NonloopMsg = "Single use notification for the above date and time";
                 LoopingTextView.setText(NonloopMsg);
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm / hh:mm a");
-                DateTimeTextView.setText(dateFormat.format(NotificationDateTime));
+                SimpleDateFormat NonLoopingdateFormat = new SimpleDateFormat("dd/MM/yyyy - HH:mm / hh:mm a");
+                DateTimeTextView.setText(NonLoopingdateFormat.format(NotificationDateTime));
             }
         }
     }

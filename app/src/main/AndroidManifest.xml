@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name="Background_Items.Notification_Channel"
@@ -26,6 +27,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MP_Bluetooth_Module.NoActionBar">
+        <activity
+            android:name=".Game_Start_Setting_Page"
+            android:exported="false" />
         <activity
             android:name=".On_Click_Notification_Display"
             android:exported="false" />
