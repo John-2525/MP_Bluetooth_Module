@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -57,6 +58,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
     private MediaPlayer AudioFilePlayer;
     private DatabaseReference BaseDatabaseReference;
     private StorageReference AudioStorageRef, ImageStorageRef, VideoStorageRef, BaseStorageReference;
+    private ProgressBar DeleteProgressbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +71,9 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
         BackBtn = findViewById(R.id.SelectedImageBackBtn);
         DeleteImageBtn = findViewById(R.id.DeleteSelectedImageBtn);
         PlayAudioBtn = findViewById(R.id.SelectedImagePlayAudioBtn);
+        DeleteProgressbar = findViewById(R.id.DeleteProgressBar);
+
+        DeleteProgressbar.setVisibility(View.INVISIBLE);
 
         /**
          * Create and initialize part of the references to Firebase Storage and Realtime database
@@ -299,6 +304,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
          */
         DeletedAudio = false;
         DeletedImageOrVideo = false;
+        DeleteProgressbar.setVisibility(View.VISIBLE);
 
         /** Creates a query for all data under "Album/Voice Recordings/" */
         SearchToDeleteAudioRef = BaseDatabaseReference.child("Voice Recordings");
@@ -374,6 +380,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
                                         Log.e(TAG, "Failed to delete Audio file from online storage");
+                                        DeleteProgressbar.setVisibility(View.INVISIBLE);
                                     }
                                 });
                             }
@@ -381,6 +388,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Log.e(TAG, "Failed to delete Audio file from realtime database");
+                                DeleteProgressbar.setVisibility(View.INVISIBLE);
                             }
                         });
                     }
@@ -423,6 +431,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
                                             Log.d(TAG, "Deleted Image file from online storage");
                                             DeletedImageOrVideo = true;
                                             Log.d(TAG, String.valueOf(DeletedImageOrVideo));
+                                            DeleteProgressbar.setVisibility(View.INVISIBLE);
                                             Toast.makeText(Selected_Firebase_File_Display.this,
                                                     "Image And Audio Deleted from online storage and database successfully", Toast.LENGTH_SHORT).show();
                                         }
@@ -430,6 +439,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             Log.e(TAG, "Failed to Delete Image file from online storage");
+                                            DeleteProgressbar.setVisibility(View.INVISIBLE);
                                         }
                                     });
                                 }
@@ -437,6 +447,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
                                     Log.e(TAG, "Failed to delete Image file from realtime database");
+                                    DeleteProgressbar.setVisibility(View.INVISIBLE);
                                 }
                             });
                         }
@@ -446,6 +457,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
                     Log.e(TAG, "Unable to get Image data for deletion");
+                    DeleteProgressbar.setVisibility(View.INVISIBLE);
                 }
             });
         }
@@ -477,6 +489,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
                                             Log.d(TAG, "Deleted Video file from online storage");
                                             DeletedImageOrVideo = true;
                                             Log.d(TAG, String.valueOf(DeletedImageOrVideo));
+                                            DeleteProgressbar.setVisibility(View.INVISIBLE);
                                             Toast.makeText(Selected_Firebase_File_Display.this,
                                                     "Video And Audio Deleted from online storage and database successfully", Toast.LENGTH_SHORT).show();
                                         }
@@ -484,6 +497,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             Log.e(TAG, "Failed to Delete Video file from online storage");
+                                            DeleteProgressbar.setVisibility(View.INVISIBLE);
                                         }
                                     });
                                 }
@@ -491,6 +505,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
                                     Log.e(TAG, "Failed to delete Video file from realtime database");
+                                    DeleteProgressbar.setVisibility(View.INVISIBLE);
                                 }
                             });
                         }
@@ -500,6 +515,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
                     Log.e(TAG, "Unable to get Video data for deletion");
+                    DeleteProgressbar.setVisibility(View.INVISIBLE);
                 }
             });
         }

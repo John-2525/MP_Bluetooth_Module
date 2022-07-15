@@ -28,6 +28,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MP_Bluetooth_Module.NoActionBar">
         <activity
+            android:name=".Select_Image_For_Game"
+            android:exported="false" />
+        <activity
+            android:name=".View_Game_Selected_Image"
+            android:exported="false" />
+        <activity
+            android:name=".Memory_Card_Game"
+            android:exported="false" />
+        <activity
             android:name=".Game_Start_Setting_Page"
             android:exported="false" />
         <activity

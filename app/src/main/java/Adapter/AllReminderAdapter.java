@@ -104,7 +104,7 @@ public class AllReminderAdapter extends FirebaseRecyclerAdapter<Reminder_For_Wee
      * reminder back to the Display_All_Reminders.java class
      */
     public interface OnItemClickListener {
-        void  OnItemClick(DataSnapshot ReminderSnapshot, int ReminderPosition, View v);
+        void OnItemClick(DataSnapshot ReminderSnapshot, int ReminderPosition, View v);
     }
 
     /** Initializes the OnItemClickListener */

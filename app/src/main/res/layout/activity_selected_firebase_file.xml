@@ -7,6 +7,7 @@
     tools:context=".Selected_Firebase_File_Display">
 
     <FrameLayout
+        android:id="@+id/frameLayout2"
         android:layout_width="349dp"
         android:layout_height="538dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -69,5 +70,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.976" />
+
+    <ProgressBar
+        android:id="@+id/DeleteProgressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.43" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

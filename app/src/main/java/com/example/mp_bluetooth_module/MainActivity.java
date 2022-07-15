@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 else {
                     Toast.makeText(MainActivity.this,"Please connect to a bluetooth device first under Diffuser Bluetooth",Toast.LENGTH_SHORT).show();
                 }
+                OpenGames();
             }
         });
 
@@ -110,6 +111,11 @@ public class MainActivity extends AppCompatActivity {
     public void OpenReminders() {
         Intent intentReminder = new Intent(this, Display_All_Reminders.class);
         startActivity(intentReminder);
+    }
+
+    public void OpenGames() {
+        Intent intentGames = new Intent(this,Game_Start_Setting_Page.class);
+        startActivity(intentGames);
     }
 
 

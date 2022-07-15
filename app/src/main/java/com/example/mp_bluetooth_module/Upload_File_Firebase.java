@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -74,6 +75,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
     private File AudioFolder, AudioFile, AudioPath, CompressedVideoFolder;
     private File[] AudioFileList;
     public Uri selectedMediaUri;
+    private ProgressBar UploadProgressbar;
 
 
 
@@ -195,10 +197,12 @@ public class Upload_File_Firebase extends AppCompatActivity {
         SelectImageOrVideoBtn = findViewById(R.id.selectImgVidBtn);
         ImageDisplay = findViewById(R.id.UploadimageView);
         VideoDisplay = findViewById(R.id.UploadvideoView);
+        UploadProgressbar = findViewById(R.id.UploadFileProgressBar);
 
         /** Hides the ImageView and VideoDisplay when creating this activity */
         ImageDisplay.setVisibility(View.INVISIBLE);
         VideoDisplay.setVisibility(View.INVISIBLE);
+        UploadProgressbar.setVisibility(View.INVISIBLE);
 
         AudioFolderPath = "Recorded Audio";
         CompressedVideoFolderPath = "Movies";
@@ -666,6 +670,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
             StorageReference VideoStorageReference = mstorageReference.child("Album").child("Videos").child(fileName + ".mp4");
             StorageReference AudioStorageReference = mstorageReference.child("Album").child("Voice Recordings").child(fileName + ".3gp");
 
+            UploadProgressbar.setVisibility(View.VISIBLE);
 
             /** Checks if the Uri points to an image */
             if (MediaUri.toString().contains("image")) {
@@ -699,7 +704,6 @@ public class Upload_File_Firebase extends AppCompatActivity {
                                      */
                                     mDataBaseReference.child("Album").child("Images").push().setValue(ImageData);
                                     ImageUploadDone = true;
-                                    Toast.makeText(Upload_File_Firebase.this,"Image Uploaded Successfully",Toast.LENGTH_SHORT).show();
                                     Log.d(TAG,"Image uploaded successfully");
                                 }
                             });
@@ -713,6 +717,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
                 }
                 catch(Exception e){
                     Log.e(TAG,"Could not upload image");
+                    UploadProgressbar.setVisibility(View.INVISIBLE);
                 }
 
                 try {
@@ -744,7 +749,9 @@ public class Upload_File_Firebase extends AppCompatActivity {
                                      */
                                     mDataBaseReference.child("Album").child("Voice Recordings").push().setValue(AudioData);
                                     AudioUploadDone = true;
-                                    Toast.makeText(Upload_File_Firebase.this,"Audio Uploaded Successfully",Toast.LENGTH_SHORT).show();
+                                    FilesName.setText("");
+                                    Toast.makeText(Upload_File_Firebase.this,"Image And Audio Uploaded Successfully",Toast.LENGTH_SHORT).show();
+                                    UploadProgressbar.setVisibility(View.INVISIBLE);
                                     Log.d(TAG,"Audio uploaded successfully");
                                 }
                             });
@@ -758,6 +765,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
                 }
                 catch(Exception e){
                     Log.e(TAG,"Could not upload audio");
+                    UploadProgressbar.setVisibility(View.INVISIBLE);
                 }
             }
 
@@ -793,7 +801,6 @@ public class Upload_File_Firebase extends AppCompatActivity {
                                      */
                                     mDataBaseReference.child("Album").child("Videos").push().setValue(VideoData);
                                     VideoUploadDone = true;
-                                    Toast.makeText(Upload_File_Firebase.this,"Video Uploaded Successfully",Toast.LENGTH_SHORT).show();
                                     Log.d(TAG,"Video uploaded successfully");
                                 }
                             });
@@ -807,6 +814,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
                 }
                 catch(Exception e){
                     Log.e(TAG,"Could not upload video");
+                    UploadProgressbar.setVisibility(View.INVISIBLE);
                 }
 
                 try {
@@ -838,7 +846,9 @@ public class Upload_File_Firebase extends AppCompatActivity {
                                      */
                                     mDataBaseReference.child("Album").child("Voice Recordings").push().setValue(AudioData);
                                     AudioUploadDone = true;
-                                    Toast.makeText(Upload_File_Firebase.this,"Audio Uploaded Successfully",Toast.LENGTH_SHORT).show();
+                                    FilesName.setText("");
+                                    Toast.makeText(Upload_File_Firebase.this,"Video And Audio Uploaded Successfully",Toast.LENGTH_SHORT).show();
+                                    UploadProgressbar.setVisibility(View.INVISIBLE);
                                     Log.d(TAG,"Audio uploaded successfully");
                                 }
                             });
@@ -852,6 +862,7 @@ public class Upload_File_Firebase extends AppCompatActivity {
                 }
                 catch(Exception e){
                     Log.e(TAG,"Could not upload audio");
+                    UploadProgressbar.setVisibility(View.INVISIBLE);
                 }
             }
         }
