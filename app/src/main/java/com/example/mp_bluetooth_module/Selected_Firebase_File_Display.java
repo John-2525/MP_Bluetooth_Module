@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -59,6 +60,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
     private DatabaseReference BaseDatabaseReference;
     private StorageReference AudioStorageRef, ImageStorageRef, VideoStorageRef, BaseStorageReference;
     private ProgressBar DeleteProgressbar;
+    private TextView FileDetailsTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +74,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
         DeleteImageBtn = findViewById(R.id.DeleteSelectedImageBtn);
         PlayAudioBtn = findViewById(R.id.SelectedImagePlayAudioBtn);
         DeleteProgressbar = findViewById(R.id.DeleteProgressBar);
+        FileDetailsTextView = findViewById(R.id.FileDetailsTextView);
 
         DeleteProgressbar.setVisibility(View.INVISIBLE);
 
@@ -108,6 +111,8 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
              * referencing later if this file is to be deleted
              */
             ImageOrVideoFileDeleteName = Data.getFileName();
+
+            FileDetailsTextView.setText((Data.getFileName().replace(".png","")));
 
             /** Gets and stores file name from the the java class data */
             SelectedImageName = Data.getFileName();
@@ -151,6 +156,8 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
              * referencing later if this file is to be deleted
              */
             ImageOrVideoFileDeleteName = Data.getFileName();
+
+            FileDetailsTextView.setText((Data.getFileName().replace(".mp4","")));
 
             /** Gets and stores file name from the the java class data */
             SelectedVideoName = Data.getFileName();
