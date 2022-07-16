@@ -30,8 +30,6 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
@@ -54,38 +52,77 @@ public class Memory_Card_Game extends AppCompatActivity {
             R.drawable.four_img,R.drawable.five_img,R.drawable.six_img,R.drawable.seven_img,R.drawable.eight_img};
     private int[] img_position = new int[] {0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7};
     private List<Integer> img_position_array = new ArrayList<Integer>(img_position.length);
-    private Collections collections;
     private String UriArrayFolderPath;
     private File UriArrayPath, UriArrayTxtFile;
     private ArrayList<Uri> SelectedImageUriArray = new ArrayList<Uri>();
+    private int[] completedTracker = new int[] {0,0,0,0,0,0,0,0};
+    private boolean gameStart = false;
+    private TextView countDownText;
+
+
+
+    private void hideAllCard(){
+        for(int i = 0; i < 16; ++i) {
+            ImageView cardImage = ImageAdapter.getCardImageViewByPosition(i);
+            Picasso.get().load(R.drawable.hidden_card_img).fit().into(cardImage);
+        }
+    }
+
+    private void showAllCard(){
+
+        for(int i = 0; i < 16; ++i) {
+            ImageView currentView = ImageAdapter.getCardImageViewByPosition(i);
+            if (SelectedImageUriArray.size() > img_position_array.get(i)) {
+                Picasso.get().load(SelectedImageUriArray.get(img_position_array.get(i))).placeholder(preset_drawable[img_position_array.get(i)]).fit().into(currentView);
+            } else {
+                Picasso.get().load(preset_drawable[img_position_array.get(i)]).fit().into(currentView);
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_memory_card_game);
-
+        gameStart = false;
         UriArrayFolderPath = "Selected Image Uri";
 
         CheckTxtFileExists();
         SelectedImageUriArray = ReadUriFromTxT();
         if(SelectedImageUriArray.size() >0) {
-            collections.shuffle(SelectedImageUriArray);
+            Collections.shuffle(SelectedImageUriArray);
         }
 
         populateArrayList(img_position);
-        collections.shuffle(img_position_array);
+        Collections.shuffle(img_position_array);
 
         GameGridView = findViewById(R.id.MemoryCardGameGridview);
         GameRefreshFAB = findViewById(R.id.InGameRefreshButton);
         BackFAB = findViewById(R.id.InGameBackButton);
-
+        countDownText = findViewById(R.id.countDown);
         ImageAdapter = new MemoryCardGameAdapter(this);
         GameGridView.setAdapter(ImageAdapter);
+        showAllCard();
+
+
+        new CountDownTimer(5000, 1000){
+            public void onTick(long millisUntilFinish){
+                countDownText.setText("Game Starts In : "+millisUntilFinish/1000);
+            }
+            public void onFinish(){
+                hideAllCard();
+                gameStart = true;
+            }
+        }.start();
 
         GameGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(gameStart == false) return;
                 if(currentPosition < 0) {
+                    if(completedTracker[img_position_array.get(position)] == 1){
+                        return;
+                    }
                     currentPosition = position;
                     Log.d(TAG,"Selected position is "+position);
                     currentView = (ImageView) view;
@@ -97,11 +134,12 @@ public class Memory_Card_Game extends AppCompatActivity {
                     }
                 }
                 else {
+                    // if u click back the same image, close it
                     if(currentPosition == position) {
-                        Picasso.get().load(R.drawable.hidden_img).fit().into((ImageView) view);
+                        Picasso.get().load(R.drawable.hidden_card_img).fit().into((ImageView) view);
                     }
                     else if(img_position_array.get(currentPosition) != img_position_array.get(position)) {
-                        Picasso.get().load(R.drawable.hidden_img).fit().into(currentView);
+                        Picasso.get().load(R.drawable.hidden_card_img).fit().into(currentView);
                         //Toast.makeText(Memory_Card_Game.this,"Incorrect Match",Toast.LENGTH_SHORT).show();
                     }
                     else {
@@ -111,6 +149,8 @@ public class Memory_Card_Game extends AppCompatActivity {
                         else {
                             Picasso.get().load(preset_drawable[img_position_array.get(position)]).fit().into((ImageView) view);
                         }
+                        int completedCardNo = img_position_array.get(currentPosition);
+                        completedTracker[completedCardNo] = 1;
                         Toast.makeText(Memory_Card_Game.this,"Correct Match",Toast.LENGTH_SHORT).show();
                         CountPair--;
 

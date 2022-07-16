@@ -10,13 +10,24 @@ import android.widget.ImageView;
 import com.example.mp_bluetooth_module.R;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+
 public class MemoryCardGameAdapter extends BaseAdapter {
 
 
     private Context context;
+    private ArrayList<ImageView> viewCardList = new ArrayList<ImageView>(16);
 
     public MemoryCardGameAdapter(Context Adaptercontext) {
         this.context = Adaptercontext;
+        for(int i = 0; i < 16; ++i){
+            ImageView cardImage;
+            cardImage = new ImageView(this.context);
+            cardImage.setLayoutParams(new ViewGroup.LayoutParams(166,260));
+            cardImage.setScaleType(ImageView.ScaleType.FIT_XY);
+            viewCardList.add(cardImage);
+        }
+
     }
 
     @Override
@@ -34,20 +45,14 @@ public class MemoryCardGameAdapter extends BaseAdapter {
         return 0;
     }
 
+    public ImageView getCardImageViewByPosition(int position){
+        return viewCardList.get(position);
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        ImageView cardImage;
-        if(convertView == null) {
-            cardImage = new ImageView(this.context);
-            cardImage.setLayoutParams(new ViewGroup.LayoutParams(166,260));
-            cardImage.setScaleType(ImageView.ScaleType.FIT_XY);
-        }
-
-        else {
-            cardImage = (ImageView) convertView;
-        }
-        Picasso.get().load(R.drawable.hidden_img).fit().into(cardImage);
+        ImageView cardImage = viewCardList.get(position);
         return cardImage;
     }
 }
