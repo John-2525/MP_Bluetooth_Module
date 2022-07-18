@@ -579,7 +579,7 @@ public class Selected_Firebase_File_Display extends AppCompatActivity {
          * " InterrputTimer = new CountDownTimer(...) " is to create a new instance of a timer
          * whenever this activity becomes visible to the user
          */
-        InterruptTimer = new CountDownTimer(30000,1000) {
+        InterruptTimer = new CountDownTimer(5000,1000) {
 
             /** A function that activates every count down interval (set by the user) */
             public void onTick(long millisUntilFinished) {
