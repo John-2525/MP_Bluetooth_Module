@@ -216,7 +216,7 @@ public class Create_And_Upload_Reminder extends AppCompatActivity implements Tim
                         }
                     }
                     else {
-                        if(!getReminderDescription().isEmpty() && TimeSelected) {
+                        if(!getReminderDescription().isEmpty() && TimeSelected && RecordingAudioFile != null) {
                             CreateReminder(CheckReminderIsToBeRecurring());
                         }
                         else {
